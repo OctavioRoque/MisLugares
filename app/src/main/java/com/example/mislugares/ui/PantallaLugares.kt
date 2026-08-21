@@ -11,14 +11,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
@@ -26,6 +26,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -40,28 +41,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-// --- Modelo de datos simple para representar un lugar ---
-data class LugarItem(
-    val nombre: String,
-    val ubicacion: String,
-    val distancia: String
-)
-
-// Los colores se importan desde MisLugaresColors en Theme.kt
+import com.example.mislugares.Lugar
+import com.example.mislugares.TipoLugar
 
 /**
- * Pantalla principal que muestra la lista de lugares.
- *
- * Es una función @Composable sin estado: toda la información
- * llega por parámetros y todos los eventos salen por lambdas.
+ * Pantalla que muestra la lista de lugares guardados.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaLugares(
-    lugares: List<LugarItem>,
+    lugares: List<Lugar>,
     onHomeClick: () -> Unit,
-    onLugarClick: (LugarItem) -> Unit,
+    onLugarClick: (Int) -> Unit,
+    onAddLugarClick: () -> Unit,
     onCargarMasClick: () -> Unit
 ) {
     Scaffold(
@@ -69,7 +61,7 @@ fun PantallaLugares(
             TopAppBar(
                 title = {
                     Text(
-                        text = "LUGARES DE MONTERREY",
+                        text = "MIS LUGARES",
                         color = MisLugaresColors.OnPrimary,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 2.sp
@@ -88,30 +80,37 @@ fun PantallaLugares(
                     containerColor = MisLugaresColors.Primary
                 )
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onAddLugarClick,
+                containerColor = MisLugaresColors.Primary,
+                contentColor = MisLugaresColors.OnPrimary,
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Añadir lugar")
+            }
         }
     ) { paddingValues ->
-        // Contenido principal con fondo beige
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MisLugaresColors.Background)
                 .padding(paddingValues)
         ) {
-            // Lista de tarjetas de lugares
             LazyColumn(
                 modifier = Modifier.weight(1f),
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(lugares) { lugar ->
+                itemsIndexed(lugares) { index, lugar ->
                     ItemLugarCard(
                         lugar = lugar,
-                        onLugarClick = onLugarClick
+                        onLugarClick = { onLugarClick(index) }
                     )
                 }
             }
 
-            // Botón "Cargar más" fijo en la parte inferior
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -136,20 +135,15 @@ fun PantallaLugares(
     }
 }
 
-/**
- * Tarjeta individual que representa un lugar en la lista.
- *
- * Muestra un placeholder de imagen, nombre, ubicación y distancia.
- */
 @Composable
 fun ItemLugarCard(
-    lugar: LugarItem,
-    onLugarClick: (LugarItem) -> Unit
+    lugar: Lugar,
+    onLugarClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onLugarClick(lugar) },
+            .clickable { onLugarClick() },
         colors = CardDefaults.cardColors(
             containerColor = MisLugaresColors.Primary
         ),
@@ -160,7 +154,6 @@ fun ItemLugarCard(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Placeholder de imagen
             Box(
                 modifier = Modifier
                     .size(72.dp)
@@ -177,7 +170,6 @@ fun ItemLugarCard(
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // Información del lugar
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.SpaceBetween
@@ -190,24 +182,23 @@ fun ItemLugarCard(
                 )
 
                 Text(
-                    text = lugar.ubicacion,
+                    text = lugar.direccion,
                     color = MisLugaresColors.OnPrimary.copy(alpha = 0.85f),
                     fontSize = 13.sp
                 )
 
-                // Fila con ícono de ubicación y distancia
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         imageVector = Icons.Default.LocationOn,
-                        contentDescription = "Distancia",
+                        contentDescription = "Tipo",
                         tint = MisLugaresColors.OnPrimary,
                         modifier = Modifier.size(14.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = lugar.distancia,
+                        text = lugar.tipo.texto,
                         color = MisLugaresColors.OnPrimary,
                         fontSize = 12.sp
                     )
@@ -217,21 +208,19 @@ fun ItemLugarCard(
     }
 }
 
-// --- Vista previa con datos de ejemplo ---
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PantallaLugaresPreview() {
     val sampleLugares = listOf(
-        LugarItem("Parque Fundidora", "Col. Obrera, Monterrey", "2.3 km"),
-        LugarItem("Macroplaza", "Centro, Monterrey", "1.1 km"),
-        LugarItem("Cerro de la Silla", "Guadalupe, N.L.", "8.7 km"),
-        LugarItem("Paseo Santa Lucía", "Centro, Monterrey", "1.5 km")
+        Lugar("Parque Fundidora", "Col. Obrera, Monterrey", -100.28, 25.67, TipoLugar.NATURALEZA, 818126700, "", "", 5),
+        Lugar("Macroplaza", "Centro, Monterrey", -100.31, 25.66, TipoLugar.OTROS, 0, "", "", 4)
     )
 
     PantallaLugares(
         lugares = sampleLugares,
         onHomeClick = {},
         onLugarClick = {},
+        onAddLugarClick = {},
         onCargarMasClick = {}
     )
 }

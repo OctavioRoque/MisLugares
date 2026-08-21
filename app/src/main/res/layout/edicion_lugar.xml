@@ -1,101 +1,192 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#F4F0E6">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="24dp">
 
+        <!-- Título de la sección -->
         <TextView
+            android:id="@+id/lbl_edicion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Nombre:" />
+            android:text="DETALLES DEL LUGAR"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#1C1C1C"
+            android:letterSpacing="0.1"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- Nombre -->
+        <TextView
+            android:id="@+id/lbl_nombre"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nombre:"
+            android:layout_marginTop="24dp"
+            android:textColor="#1C1C1C"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/lbl_edicion"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <EditText
             android:id="@+id/nombre"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="Algo que identifique el lugar" />
+            android:hint="Algo que identifique el lugar"
+            android:backgroundTint="#8A9A73"
+            android:textColor="#1C1C1C"
+            app:layout_constraintTop_toBottomOf="@id/lbl_nombre"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="8dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Tipo: " />
-
-            <Spinner
-                android:id="@+id/tipo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
+        <!-- Tipo y Teléfono en la misma fila para pantallas anchas -->
         <TextView
+            android:id="@+id/lbl_tipo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Dirección:" />
+            android:text="Tipo:"
+            android:layout_marginTop="16dp"
+            android:textColor="#1C1C1C"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/nombre"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Spinner
+            android:id="@+id/tipo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            app:layout_constraintTop_toBottomOf="@id/lbl_tipo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_vertical"
+            app:layout_constraintHorizontal_bias="0.5" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
+
+        <TextView
+            android:id="@+id/lbl_telefono"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Teléfono:"
+            android:layout_marginTop="16dp"
+            android:textColor="#1C1C1C"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/nombre"
+            app:layout_constraintStart_toEndOf="@id/guideline_vertical"
+            android:layout_marginStart="16dp" />
+
+        <EditText
+            android:id="@+id/telefono"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="Teléfono"
+            android:inputType="phone"
+            android:backgroundTint="#8A9A73"
+            android:textColor="#1C1C1C"
+            app:layout_constraintTop_toBottomOf="@id/lbl_telefono"
+            app:layout_constraintStart_toEndOf="@id/guideline_vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginStart="16dp" />
+
+        <!-- Dirección -->
+        <TextView
+            android:id="@+id/lbl_direccion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dirección:"
+            android:layout_marginTop="16dp"
+            android:textColor="#1C1C1C"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/tipo"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <EditText
             android:id="@+id/direccion"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="Dirección del lugar" />
+            android:hint="Dirección del lugar"
+            android:backgroundTint="#8A9A73"
+            android:textColor="#1C1C1C"
+            app:layout_constraintTop_toBottomOf="@id/lbl_direccion"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="8dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Telefono: " />
-
-            <EditText
-                android:id="@+id/telefono"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="Teléfono para contactar"
-                android:inputType="phone" />
-        </LinearLayout>
-
+        <!-- URL -->
         <TextView
+            android:id="@+id/lbl_url"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Url:" />
+            android:text="URL (Web):"
+            android:layout_marginTop="16dp"
+            android:textColor="#1C1C1C"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/direccion"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <EditText
             android:id="@+id/url"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="Página web"
-            android:inputType="textUri" />
+            android:hint="https://ejemplo.com"
+            android:inputType="textUri"
+            android:backgroundTint="#8A9A73"
+            android:textColor="#1C1C1C"
+            app:layout_constraintTop_toBottomOf="@id/lbl_url"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
+        <!-- Comentario -->
         <TextView
+            android:id="@+id/lbl_comentario"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Comentario:" />
+            android:text="Notas/Comentarios:"
+            android:layout_marginTop="16dp"
+            android:textColor="#1C1C1C"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/url"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <EditText
             android:id="@+id/comentario"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="Introduce tus notas"
-            android:inputType="textMultiLine" />
+            android:hint="Introduce tus notas aquí..."
+            android:inputType="textMultiLine"
+            android:gravity="top"
+            android:minLines="3"
+            android:backgroundTint="#8A9A73"
+            android:textColor="#1C1C1C"
+            app:layout_constraintTop_toBottomOf="@id/lbl_comentario"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-    </LinearLayout>
+        <!-- Botón de Guardar -->
+        <Button
+            android:id="@+id/btn_guardar"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="GUARDAR CAMBIOS"
+            android:layout_marginTop="32dp"
+            android:backgroundTint="#8A9A73"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/comentario"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

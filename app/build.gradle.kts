@@ -37,11 +37,13 @@ android {
 }
 
 dependencies {
+    implementation(project(":MisLugares"))
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.legacy.support.v4)
     implementation(libs.material)
+    implementation(libs.gson)
 
     // Jetpack Compose
     implementation(platform(libs.compose.bom))
@@ -50,6 +52,8 @@ dependencies {
     implementation(libs.compose.material.icons.extended)
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.compose.ui.viewbinding)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     debugImplementation(libs.compose.ui.tooling)
 
     testImplementation(libs.junit)
