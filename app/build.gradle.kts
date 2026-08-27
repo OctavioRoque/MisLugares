@@ -45,6 +45,12 @@ dependencies {
     implementation(libs.material)
     implementation(libs.gson)
 
+    // Osmdroid
+    implementation("org.osmdroid:osmdroid-android:6.1.20")
+
+    // Google Play Services Location
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+
     // Jetpack Compose
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)

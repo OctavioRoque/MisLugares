@@ -1,48 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context=".MainActivity">
+    android:background="@color/background">
 
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/app_bar"
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/app_bar_height"
-        android:fitsSystemWindows="true"
-        android:theme="@style/Theme.MisLugares.AppBarOverlay">
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.appbar.CollapsingToolbarLayout
-            android:id="@+id/toolbar_layout"
-            style="@style/Widget.MaterialComponents.Toolbar.Primary"
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fitsSystemWindows="true"
-            app:contentScrim="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:toolbarId="@+id/toolbar">
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/primary"
+            app:titleTextColor="@color/on_primary">
 
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:layout_collapseMode="pin"
-                app:popupTheme="@style/Theme.MisLugares.PopupOverlay" />
-
-        </com.google.android.material.appbar.CollapsingToolbarLayout>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/ic_location"
+                app:tint="@color/on_primary" />
+        </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <include layout="@layout/content_main" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appBarLayout">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/fab_margin"
-        app:layout_anchor="@id/app_bar"
-        app:layout_anchorGravity="bottom|end"
-        app:srcCompat="@android:drawable/ic_dialog_email" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="24dp">
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+            <TextView
+                android:id="@+id/tvBienvenido"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:letterSpacing="0.2"
+                android:text="BIENVENIDO"
+                android:textColor="@color/text_primary"
+                android:textSize="32sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnFavoritos"
+                style="@style/Widget.MisLugares.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                android:padding="16dp"
+                android:text="MIS FAVORITOS"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAnadir"
+                style="@style/Widget.MisLugares.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:padding="16dp"
+                android:text="AÑADIR LUGARES"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_marginTop="32dp"
+                android:text="SITIOS DE INTERÉS"
+                android:textColor="@color/text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvSitiosInteres"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@layout/item_lugar" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
