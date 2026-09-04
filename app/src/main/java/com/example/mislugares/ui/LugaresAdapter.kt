@@ -33,9 +33,26 @@ class LugaresAdapter(
 
     override fun onBindViewHolder(holder: LugarViewHolder, position: Int) {
         val lugar = lugares[position]
+        val context = holder.itemView.context
         holder.tvNombre.text = lugar.nombre
         holder.tvDireccion.text = lugar.direccion
-        holder.tvTipo.text = lugar.tipo.texto
+        
+        // Traducción de TipoLugar
+        val tipoRes = when (lugar.tipo) {
+            com.example.mislugares.TipoLugar.OTROS -> R.string.type_others
+            com.example.mislugares.TipoLugar.RESTAURANTE -> R.string.type_restaurant
+            com.example.mislugares.TipoLugar.BAR -> R.string.type_bar
+            com.example.mislugares.TipoLugar.COPAS -> R.string.type_drinks
+            com.example.mislugares.TipoLugar.ESPECTACULO -> R.string.type_show
+            com.example.mislugares.TipoLugar.HOTEL -> R.string.type_hotel
+            com.example.mislugares.TipoLugar.COMPRAS -> R.string.type_shopping
+            com.example.mislugares.TipoLugar.EDUCACION -> R.string.type_education
+            com.example.mislugares.TipoLugar.DEPORTE -> R.string.type_sport
+            com.example.mislugares.TipoLugar.NATURALEZA -> R.string.type_nature
+            com.example.mislugares.TipoLugar.GASOLINERA -> R.string.type_gas_station
+            else -> R.string.type_others
+        }
+        holder.tvTipo.text = context.getString(tipoRes)
 
         // Cálculo de distancia nativo
         if (userLocation != null && lugar.posicion != null) {

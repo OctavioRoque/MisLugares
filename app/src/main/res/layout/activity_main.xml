@@ -48,7 +48,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:letterSpacing="0.2"
-                android:text="BIENVENIDO"
+                android:text="@string/welcome"
                 android:textColor="@color/text_primary"
                 android:textSize="32sp"
                 android:textStyle="bold" />
@@ -60,7 +60,18 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="40dp"
                 android:padding="16dp"
-                android:text="MIS FAVORITOS"
+                android:text="@string/my_favorites"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCercanos"
+                style="@style/Widget.MisLugares.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:padding="16dp"
+                android:text="@string/search_nearby"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -71,8 +82,44 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:padding="16dp"
-                android:text="AÑADIR LUGARES"
+                android:text="@string/add_places"
                 android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPreferencias"
+                    style="@style/Widget.MisLugares.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/preferences"
+                    android:textStyle="bold"
+                    android:layout_marginEnd="6dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAcercaDe"
+                    style="@style/Widget.MisLugares.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/about"
+                    android:textStyle="bold"
+                    android:layout_marginStart="6dp" />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSalir"
+                style="@style/Widget.MisLugares.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/exit"
                 android:textStyle="bold" />
 
             <TextView
@@ -80,7 +127,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:layout_marginTop="32dp"
-                android:text="SITIOS DE INTERÉS"
+                android:text="@string/places_of_interest"
                 android:textColor="@color/text_primary"
                 android:textSize="20sp"
                 android:textStyle="bold" />

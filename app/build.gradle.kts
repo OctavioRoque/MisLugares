@@ -44,6 +44,9 @@ dependencies {
     implementation(libs.androidx.legacy.support.v4)
     implementation(libs.material)
     implementation(libs.gson)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp.logging)
 
     // Osmdroid
     implementation("org.osmdroid:osmdroid-android:6.1.20")

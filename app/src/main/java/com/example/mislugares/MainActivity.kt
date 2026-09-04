@@ -7,8 +7,11 @@ import android.location.Location
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
+import androidx.core.os.LocaleListCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mislugares.databinding.ActivityMainBinding
 import com.example.mislugares.ui.EdicionLugarActivity
@@ -31,6 +34,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        setSupportActionBar(binding.toolbar)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -58,10 +63,39 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, FavoritosActivity::class.java))
         }
 
+        binding.btnCercanos.setOnClickListener {
+            startActivity(Intent(this, com.example.mislugares.ui.LugaresCercanosActivity::class.java))
+        }
+
         binding.btnAnadir.setOnClickListener {
             val intent = Intent(this, EdicionLugarActivity::class.java)
             startActivity(intent)
         }
+
+        binding.btnPreferencias.setOnClickListener {
+            showLanguageDialog()
+        }
+
+        binding.btnAcercaDe.setOnClickListener {
+            Toast.makeText(this, R.string.about, Toast.LENGTH_SHORT).show()
+        }
+
+        binding.btnSalir.setOnClickListener {
+            finish()
+        }
+    }
+
+    private fun showLanguageDialog() {
+        val languages = arrayOf(getString(R.string.spanish), getString(R.string.english))
+        val langTags = arrayOf("es", "en")
+        
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(R.string.select_language)
+        builder.setItems(languages) { _, which ->
+            val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags(langTags[which])
+            AppCompatDelegate.setApplicationLocales(appLocale)
+        }
+        builder.show()
     }
 
     private fun requestLocation() {
