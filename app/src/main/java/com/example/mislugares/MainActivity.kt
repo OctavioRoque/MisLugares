@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -31,11 +32,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Ensure the toolbar is recognized as the action bar
         setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -59,29 +63,36 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
-        binding.btnFavoritos.setOnClickListener {
-            startActivity(Intent(this, FavoritosActivity::class.java))
-        }
-
-        binding.btnCercanos.setOnClickListener {
-            startActivity(Intent(this, com.example.mislugares.ui.LugaresCercanosActivity::class.java))
-        }
-
         binding.btnAnadir.setOnClickListener {
             val intent = Intent(this, EdicionLugarActivity::class.java)
             startActivity(intent)
         }
+    }
 
-        binding.btnPreferencias.setOnClickListener {
-            showLanguageDialog()
-        }
+    override fun onCreateOptionsMenu(menu: android.view.Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
 
-        binding.btnAcercaDe.setOnClickListener {
-            Toast.makeText(this, R.string.about, Toast.LENGTH_SHORT).show()
-        }
-
-        binding.btnSalir.setOnClickListener {
-            finish()
+    override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_favorites -> {
+                startActivity(Intent(this, FavoritosActivity::class.java))
+                true
+            }
+            R.id.action_nearby -> {
+                startActivity(Intent(this, com.example.mislugares.ui.LugaresCercanosActivity::class.java))
+                true
+            }
+            R.id.action_settings -> {
+                showLanguageDialog()
+                true
+            }
+            R.id.action_about -> {
+                Toast.makeText(this, R.string.about, Toast.LENGTH_SHORT).show()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 

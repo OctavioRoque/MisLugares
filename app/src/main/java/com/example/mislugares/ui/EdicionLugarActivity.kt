@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -29,22 +30,22 @@ class EdicionLugarActivity : AppCompatActivity() {
     private var currentGPS: GeoPunto? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         binding = ActivityEdicionLugarBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
         binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         lugarIndex = intent.getIntExtra("LUGAR_INDEX", -1)
         
-        if (lugarIndex == -1) {
-            supportActionBar?.title = getString(R.string.add_place)
-        } else {
-            supportActionBar?.title = getString(R.string.edit_place)
-        }
+        // Custom title is handled by the TextView in XML
+        val titleText = if (lugarIndex == -1) getString(R.string.add_place) else getString(R.string.edit_place)
+        binding.toolbar.findViewById<android.widget.TextView>(R.id.toolbar_title).text = titleText
 
         setupSpinner()
         loadLugarData()
