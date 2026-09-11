@@ -15,6 +15,7 @@
     <string name="label_comments">Notas/Comentarios:</string>
     <string name="save_changes">GUARDAR CAMBIOS</string>
     <string name="view_path">VER CAMINO (Google Maps)</string>
+    <string name="share_place">Compartir lugar</string>
     <string name="label_type">Tipo:</string>
     <string name="photo">FOTO</string>
     <string name="osm_attribution">© OpenStreetMap contributors</string>
@@ -25,6 +26,13 @@
     <string name="select_language">Selecciona un idioma</string>
     <string name="spanish">Español</string>
     <string name="english">Inglés</string>
+
+    <!-- Filters and UI -->
+    <string name="main_title">Mis lugares</string>
+    <string name="filter_all">Todos</string>
+    <string name="filter_nature">Naturaleza</string>
+    <string name="filter_culture">Cultura</string>
+    <string name="filter_gastronomy">Gastronomía</string>
 
     <!-- Tipos de lugar -->
     <string name="type_others">Otros</string>
@@ -38,6 +46,8 @@
     <string name="type_sport">Deporte</string>
     <string name="type_nature">Naturaleza</string>
     <string name="type_gas_station">Gasolinera</string>
+    <string name="type_pharmacy">Farmacia</string>
+    <string name="type_bank">Banco</string>
 
     <string name="name_required">El nombre es obligatorio</string>
     <string name="place_added">Lugar añadido</string>
@@ -48,6 +58,7 @@
     <string name="no_nearby_found">No se encontraron lugares cercanos</string>
     <string name="location_error">No se pudo obtener la ubicación actual</string>
     <string name="unknown_error">Error desconocido al buscar lugares cercanos</string>
+    <string name="address_not_available">Dirección no disponible</string>
     <string name="dist_1km">1 km</string>
     <string name="dist_3km">3 km</string>
     <string name="dist_5km">5 km</string>

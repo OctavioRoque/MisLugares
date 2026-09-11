@@ -5,8 +5,13 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -14,9 +19,19 @@ import com.example.mislugares.GeoPunto
 import com.example.mislugares.Lugar
 import com.example.mislugares.TipoLugar
 import com.example.mislugares.R
+import com.example.mislugares.data.NominatimApiService
+import com.example.mislugares.data.NominatimSearchResult
 import com.example.mislugares.databinding.ActivityEdicionLugarBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 /**
  * Activity para añadir o editar un lugar.
@@ -28,23 +43,49 @@ class EdicionLugarActivity : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var currentGPS: GeoPunto? = null
 
+    // Autocompletado de dirección con Nominatim
+    private val debounceHandler = Handler(Looper.getMainLooper())
+    private var debounceRunnable: Runnable? = null
+    private var searchResults: List<NominatimSearchResult> = emptyList()
+    private var isSelectingSuggestion = false
+
+    private val nominatimService: NominatimApiService by lazy {
+        val client = OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .addInterceptor { chain ->
+                val request = chain.request().newBuilder()
+                    .header("User-Agent", "MisLugaresAndroidApp/1.0")
+                    .build()
+                chain.proceed(request)
+            }
+            .build()
+
+        Retrofit.Builder()
+            .baseUrl(NominatimApiService.BASE_URL)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(NominatimApiService::class.java)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         binding = ActivityEdicionLugarBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
         binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         lugarIndex = intent.getIntExtra("LUGAR_INDEX", -1)
         
-        if (lugarIndex == -1) {
-            supportActionBar?.title = getString(R.string.add_place)
-        } else {
-            supportActionBar?.title = getString(R.string.edit_place)
-        }
+        // Custom title is handled by the TextView in XML
+        val titleText = if (lugarIndex == -1) getString(R.string.add_place) else getString(R.string.edit_place)
+        binding.toolbar.findViewById<android.widget.TextView>(R.id.toolbar_title).text = titleText
 
         setupSpinner()
         loadLugarData()
@@ -61,6 +102,115 @@ class EdicionLugarActivity : AppCompatActivity() {
 
         binding.btnGuardar.setOnClickListener { saveLugar() }
         binding.btnVerCamino.setOnClickListener { verCamino() }
+
+        // El botón de compartir solo funciona y está disponible en lugares ya guardados
+        val esLugarGuardado = lugarIndex != -1
+        if (esLugarGuardado) {
+            binding.btnCompartirLugar.visibility = View.VISIBLE
+            binding.btnCompartirLugar.isEnabled = true
+            binding.btnCompartirLugar.alpha = 1.0f
+            binding.btnCompartirLugar.setOnClickListener { compartirLugar() }
+        } else {
+            binding.btnCompartirLugar.visibility = View.GONE
+        }
+
+        setupAddressAutocomplete()
+    }
+
+    private fun compartirLugar() {
+        val nombre = binding.nombre.text.toString()
+        val direccion = binding.direccion.text.toString()
+        val pos = currentGPS
+
+        val mensaje = buildString {
+            append("📍 $nombre")
+            if (direccion.isNotBlank()) append("\n📫 $direccion")
+            if (pos != null && (pos.latitud != 0.0 || pos.longitud != 0.0)) {
+                append("\n🗺️ https://maps.google.com/?q=${pos.latitud},${pos.longitud}")
+            }
+        }
+
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, nombre)
+            putExtra(Intent.EXTRA_TEXT, mensaje)
+        }
+        startActivity(Intent.createChooser(shareIntent, getString(R.string.share_place)))
+    }
+
+    private fun setupAddressAutocomplete() {
+        val direccionView = binding.direccion as AutoCompleteTextView
+
+        // Listener para cuando el usuario selecciona una sugerencia
+        direccionView.setOnItemClickListener { _, _, position, _ ->
+            if (position < searchResults.size) {
+                val selected = searchResults[position]
+                isSelectingSuggestion = true
+
+                // Formatear dirección legible desde los componentes
+                val addr = selected.address
+                val formatted = listOfNotNull(
+                    addr?.road,
+                    addr?.house_number,
+                    addr?.neighbourhood ?: addr?.suburb,
+                    addr?.city ?: addr?.town ?: addr?.village
+                ).joinToString(", ")
+
+                direccionView.setText(formatted.ifBlank { selected.display_name ?: "" })
+                direccionView.setSelection(direccionView.text.length)
+
+                // Actualizar coordenadas GPS del lugar seleccionado
+                val lat = selected.lat?.toDoubleOrNull()
+                val lon = selected.lon?.toDoubleOrNull()
+                if (lat != null && lon != null) {
+                    currentGPS = GeoPunto(lon, lat)
+                    android.util.Log.d("EdicionLugar", "Coordenadas actualizadas desde autocompletado: $lat, $lon")
+                }
+
+                isSelectingSuggestion = false
+            }
+        }
+
+        // TextWatcher con debounce para buscar direcciones
+        direccionView.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                if (isSelectingSuggestion) return
+
+                debounceRunnable?.let { debounceHandler.removeCallbacks(it) }
+
+                val query = s?.toString()?.trim() ?: ""
+                if (query.length < 3) return
+
+                debounceRunnable = Runnable {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        try {
+                            val response = nominatimService.searchAddress(query)
+                            if (response.isSuccessful) {
+                                val results = response.body() ?: emptyList()
+                                withContext(Dispatchers.Main) {
+                                    searchResults = results
+                                    val suggestions = results.mapNotNull { it.display_name }
+                                    val adapter = ArrayAdapter(
+                                        this@EdicionLugarActivity,
+                                        android.R.layout.simple_dropdown_item_1line,
+                                        suggestions
+                                    )
+                                    direccionView.setAdapter(adapter)
+                                    if (suggestions.isNotEmpty() && direccionView.hasFocus()) {
+                                        direccionView.showDropDown()
+                                    }
+                                }
+                            }
+                        } catch (e: Exception) {
+                            android.util.Log.w("EdicionLugar", "Error buscando direcciones: ${e.message}")
+                        }
+                    }
+                }
+                debounceHandler.postDelayed(debounceRunnable!!, 500)
+            }
+        })
     }
 
     private fun setupSpinner() {

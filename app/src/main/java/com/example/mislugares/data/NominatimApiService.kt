@@ -14,6 +14,15 @@ interface NominatimApiService {
         @Query("addressdetails") addressDetails: Int = 1
     ): Response<NominatimResponse>
 
+    @GET("search")
+    suspend fun searchAddress(
+        @Query("q") query: String,
+        @Query("format") format: String = "jsonv2",
+        @Query("addressdetails") addressDetails: Int = 1,
+        @Query("limit") limit: Int = 5,
+        @Query("countrycodes") countryCodes: String = "mx"
+    ): Response<List<NominatimSearchResult>>
+
     companion object {
         const val BASE_URL = "https://nominatim.openstreetmap.org/"
     }
@@ -32,4 +41,11 @@ data class NominatimAddress(
     val city: String? = null,
     val town: String? = null,
     val village: String? = null
+)
+
+data class NominatimSearchResult(
+    val display_name: String? = null,
+    val lat: String? = null,
+    val lon: String? = null,
+    val address: NominatimAddress? = null
 )

@@ -9,92 +9,78 @@
     android:clickable="true"
     android:focusable="true">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="12dp">
+        android:padding="@dimen/card_padding">
 
         <com.google.android.material.card.MaterialCardView
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            app:cardCornerRadius="28dp"
+            android:id="@+id/cardIcon"
+            android:layout_width="@dimen/place_icon_size"
+            android:layout_height="@dimen/place_icon_size"
+            app:cardBackgroundColor="@color/primary"
+            app:cardCornerRadius="8dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/white"
-            app:strokeWidth="1dp"
-            app:strokeColor="@color/outline">
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:id="@+id/ivIcono"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_restaurant"
-                app:tint="@color/outline" />
+                app:tint="@color/on_primary" />
         </com.google.android.material.card.MaterialCardView>
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/tvNombre"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:layout_marginStart="12dp"
+            android:fontFamily="serif"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_size_h2"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@id/tvDistancia"
+            app:layout_constraintStart_toEndOf="@id/cardIcon"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Restaurante Ejemplo" />
 
-            <TextView
-                android:id="@+id/tvNombre"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:textColor="@color/text_primary"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                tools:text="Restaurante Ejemplo" />
+        <TextView
+            android:id="@+id/tvDireccion"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_size_body"
+            app:layout_constraintEnd_toEndOf="@id/tvNombre"
+            app:layout_constraintStart_toStartOf="@id/tvNombre"
+            app:layout_constraintTop_toBottomOf="@id/tvNombre"
+            tools:text="Calle Principal 123, Ciudad Ejemplo" />
 
-            <TextView
-                android:id="@+id/tvDireccion"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:textColor="@color/outline"
-                android:textSize="13sp"
-                tools:text="Calle Principal 123, Ciudad Ejemplo" />
+        <TextView
+            android:id="@+id/tvTipo"
+            style="@style/Widget.MisLugares.CategoryTag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textSize="@dimen/text_size_tag"
+            app:layout_constraintStart_toStartOf="@id/tvNombre"
+            app:layout_constraintTop_toBottomOf="@id/tvDireccion"
+            tools:text="RESTAURANTE" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+        <TextView
+            android:id="@+id/tvDistancia"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/accent_gold"
+            android:textSize="@dimen/text_size_caption"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="250 m" />
 
-                <TextView
-                    android:id="@+id/tvTipo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/rounded_background_white"
-                    android:paddingHorizontal="6dp"
-                    android:paddingVertical="2dp"
-                    android:textColor="@color/primary"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    tools:text="RESTAURANTE" />
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
-
-                <TextView
-                    android:id="@+id/tvDistancia"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/text_primary"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    tools:text="250 m" />
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

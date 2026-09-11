@@ -15,6 +15,7 @@
     <string name="label_comments">Notes/Comments:</string>
     <string name="save_changes">SAVE CHANGES</string>
     <string name="view_path">VIEW PATH (Google Maps)</string>
+    <string name="share_place">Share place</string>
     <string name="label_type">Type:</string>
     <string name="photo">PHOTO</string>
     <string name="osm_attribution">© OpenStreetMap contributors</string>
@@ -25,6 +26,13 @@
     <string name="select_language">Select a language</string>
     <string name="spanish">Spanish</string>
     <string name="english">English</string>
+
+    <!-- Filters and UI -->
+    <string name="main_title">My places</string>
+    <string name="filter_all">All</string>
+    <string name="filter_nature">Nature</string>
+    <string name="filter_culture">Culture</string>
+    <string name="filter_gastronomy">Gastronomy</string>
 
     <!-- Place types -->
     <string name="type_others">Others</string>
@@ -38,6 +46,8 @@
     <string name="type_sport">Sport</string>
     <string name="type_nature">Nature</string>
     <string name="type_gas_station">Gas Station</string>
+    <string name="type_pharmacy">Pharmacy</string>
+    <string name="type_bank">Bank</string>
 
     <string name="name_required">Name is required</string>
     <string name="place_added">Place added</string>
@@ -48,6 +58,7 @@
     <string name="no_nearby_found">No nearby places found</string>
     <string name="location_error">Could not get current location</string>
     <string name="unknown_error">Unknown error searching nearby places</string>
+    <string name="address_not_available">Address not available</string>
     <string name="dist_1km">1 km</string>
     <string name="dist_3km">3 km</string>
     <string name="dist_5km">5 km</string>

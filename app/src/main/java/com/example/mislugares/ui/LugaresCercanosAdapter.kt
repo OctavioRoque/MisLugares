@@ -42,7 +42,7 @@ class LugaresCercanosAdapter(
         val context = holder.itemView.context
         
         holder.tvNombre.text = lugar.nombre
-        holder.tvDireccion.text = lugar.direccion ?: "Dirección no disponible"
+        holder.tvDireccion.text = lugar.direccion ?: context.getString(R.string.address_not_available)
         
         // Mapeo simple de categoría OSM a texto amigable
         holder.tvTipo.text = mapOsmCategory(lugar.categoria, context)
@@ -111,8 +111,8 @@ class LugaresCercanosAdapter(
             "park", "nature_reserve" -> context.getString(R.string.type_nature)
             "sports_centre", "gym", "stadium" -> context.getString(R.string.type_sport)
             "fuel" -> context.getString(R.string.type_gas_station)
-            "pharmacy" -> "Farmacia" // Hardcoded for simplicity as it's not in strings.xml yet
-            "bank" -> "Banco"
+            "pharmacy" -> context.getString(R.string.type_pharmacy)
+            "bank" -> context.getString(R.string.type_bank)
             "museum", "attraction", "viewpoint" -> context.getString(R.string.type_others)
             else -> category.replace("_", " ").replaceFirstChar { it.uppercase() }
         }

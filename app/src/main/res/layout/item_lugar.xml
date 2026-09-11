@@ -1,88 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="@style/Widget.MisLugares.CardView"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
-    android:clickable="true"
-    android:focusable="true">
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <!-- Dashed connection line -->
+    <View
+        android:id="@+id/viewConnector"
+        android:layout_width="2dp"
+        android:layout_height="0dp"
+        android:background="@drawable/dashed_line"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/cardIcon"
+        app:layout_constraintStart_toStartOf="@id/cardIcon"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardContainer"
+        style="@style/Widget.MisLugares.CardView"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="12dp">
+        android:layout_marginStart="@dimen/place_card_margin_start"
+        android:layout_marginTop="@dimen/card_margin_vertical"
+        android:layout_marginEnd="@dimen/place_card_margin_end"
+        android:layout_marginBottom="@dimen/card_margin_vertical"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/cardIcon"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <FrameLayout
-            android:layout_width="72dp"
-            android:layout_height="72dp"
-            android:background="@drawable/rounded_background_white">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/photo"
-                android:textColor="@color/outline"
-                android:textStyle="bold" />
-        </FrameLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:padding="@dimen/card_padding">
 
             <TextView
                 android:id="@+id/tvNombre"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:textColor="@color/on_primary"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:fontFamily="serif"
+                android:textColor="@color/text_primary"
+                android:textSize="@dimen/text_size_h2"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toStartOf="@id/tvDistancia"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Parque del Retiro" />
 
             <TextView
                 android:id="@+id/tvDireccion"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:textColor="#D9FFFFFF"
-                android:textSize="13sp" />
+                android:layout_marginTop="2dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="@dimen/text_size_body"
+                app:layout_constraintEnd_toEndOf="@id/tvNombre"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvNombre"
+                tools:text="Plaza de la Independencia, 7" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tvTipo"
+                style="@style/Widget.MisLugares.CategoryTag"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textSize="@dimen/text_size_tag"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvDireccion"
+                tools:text="NATURALEZA" />
+
+            <TextView
+                android:id="@+id/tvDistancia"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="4dp"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:textColor="@color/text_secondary"
+                android:textSize="@dimen/text_size_caption"
+                app:drawableStartCompat="@drawable/ic_location"
+                app:drawableTint="@color/accent_gold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="1.2 km" />
 
-                <ImageView
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
-                    android:src="@drawable/ic_location"
-                    app:tint="@color/on_primary" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
 
-                <TextView
-                    android:id="@+id/tvTipo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:textColor="@color/on_primary"
-                    android:textSize="12sp" />
+    <!-- Icon Square on the left -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardIcon"
+        android:layout_width="@dimen/place_icon_size"
+        android:layout_height="@dimen/place_icon_size"
+        android:layout_marginStart="@dimen/place_icon_margin_start"
+        app:cardBackgroundColor="@color/primary"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/cardContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/cardContainer">
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
+        <ImageView
+            android:id="@+id/ivIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_location"
+            app:tint="@color/on_primary" />
+    </com.google.android.material.card.MaterialCardView>
 
-                <TextView
-                    android:id="@+id/tvDistancia"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/on_primary"
-                    android:textSize="12sp"
-                    android:textStyle="italic" />
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+</androidx.constraintlayout.widget.ConstraintLayout>
