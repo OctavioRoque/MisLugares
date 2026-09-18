@@ -47,7 +47,7 @@
                 android:textColor="@color/text_primary"
                 android:textSize="@dimen/text_size_h2"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toStartOf="@id/tvDistancia"
+                app:layout_constraintEnd_toStartOf="@id/btnFavorito"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="Parque del Retiro" />
@@ -79,6 +79,7 @@
                 android:id="@+id/tvDistancia"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:drawablePadding="4dp"
                 android:gravity="center_vertical"
                 android:textColor="@color/text_secondary"
@@ -86,8 +87,20 @@
                 app:drawableStartCompat="@drawable/ic_location"
                 app:drawableTint="@color/accent_gold"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btnFavorito"
                 tools:text="1.2 km" />
+
+            <!-- BOTÓN DE FAVORITO (Icono de estrella o corazón) -->
+            <ImageView
+                android:id="@+id/btnFavorito"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/btn_star_big_off"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
