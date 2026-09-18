@@ -48,7 +48,7 @@
                     app:tint="@color/primary" />
             </androidx.appcompat.widget.Toolbar>
 
-            <!-- PANEL PARA MODIFICAR LA DISTANCIA (Requerimiento de la app) -->
+            <!-- PANEL PARA MODIFICAR LA DISTANCIA -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
