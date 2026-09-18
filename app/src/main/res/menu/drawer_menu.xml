@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_inicio"
+        android:title="Inicio / Todos los Lugares" />
+    <item
+        android:id="@+id/nav_favoritos"
+        android:title="Mis Favoritos" />
+    <item
+        android:id="@+id/nav_cercanos"
+        android:title="Lugares Cercanos" />
+    <item
+        android:id="@+id/nav_filtrar_tipo"
+        android:title="Filtrar por Categoría" />
+</menu>
