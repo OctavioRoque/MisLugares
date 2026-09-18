@@ -20,6 +20,7 @@ import java.util.Locale
 class LugaresCercanosAdapter(
     private var lugares: List<LugarCercano>,
     private var userLocation: Location? = null,
+    private val onSaveFavoritoClick: ((LugarCercano) -> Unit)? = null,
     private val onLugarClick: (LugarCercano) -> Unit
 ) : RecyclerView.Adapter<LugaresCercanosAdapter.ViewHolder>() {
 
@@ -29,6 +30,7 @@ class LugaresCercanosAdapter(
         val tvTipo: TextView = view.findViewById(R.id.tvTipo)
         val tvDistancia: TextView = view.findViewById(R.id.tvDistancia)
         val ivIcono: ImageView = view.findViewById(R.id.ivIcono)
+        val btnGuardarFavorito: ImageView = view.findViewById(R.id.btnGuardarFavorito)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -71,6 +73,10 @@ class LugaresCercanosAdapter(
             holder.tvDistancia.visibility = View.VISIBLE
         } else {
             holder.tvDistancia.visibility = View.GONE
+        }
+
+        holder.btnGuardarFavorito.setOnClickListener {
+            onSaveFavoritoClick?.invoke(lugar)
         }
 
         holder.itemView.setOnClickListener { onLugarClick(lugar) }
@@ -119,10 +125,11 @@ class LugaresCercanosAdapter(
     }
 
     private fun formatDistance(meters: Float): String {
-        return if (meters < 1000) {
-            String.format(Locale.getDefault(), "%.0f m", meters)
+        val km = meters / 1000f
+        return if (km < 1.0f) {
+            String.format(Locale.getDefault(), "%.2f km", km)
         } else {
-            String.format(Locale.getDefault(), "%.1f km", meters / 1000)
+            String.format(Locale.getDefault(), "%.1f km", km)
         }
     }
 }

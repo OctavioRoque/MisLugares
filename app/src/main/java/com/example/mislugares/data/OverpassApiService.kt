@@ -41,20 +41,17 @@ interface OverpassApiService {
         const val BASE_URL_FALLBACK = "https://overpass.kumi.systems/api/"
 
         /**
-         * Construye una query Overpass QL para buscar POIs en un radio.
+         * Construye una query Overpass QL compacta y rápida para buscar POIs en un radio.
          */
         fun buildQuery(lat: Double, lon: Double, radius: Int = 1000): String {
-            // Categorías a buscar (amenity, tourism, leisure)
-            val categories = listOf(
-                "amenity=restaurant", "amenity=cafe", "amenity=bar", "amenity=pub",
-                "leisure=park", "tourism=museum", "tourism=attraction", "tourism=hotel",
-                "amenity=fuel", "amenity=bank", "amenity=pharmacy", "leisure=sports_centre"
-            )
-
-            val filter = categories.joinToString("") { "node[$it](around:$radius,$lat,$lon);" } +
-                    categories.joinToString("") { "way[$it](around:$radius,$lat,$lon);" }
-
-            return "[out:json][timeout:25];($filter);out center;"
+            return "[out:json][timeout:10];(" +
+                    "node[\"amenity\"~\"restaurant|fast_food|cafe|bar|pub|fuel|bank|pharmacy\"](around:$radius,$lat,$lon);" +
+                    "node[\"leisure\"~\"park|sports_centre\"](around:$radius,$lat,$lon);" +
+                    "node[\"tourism\"~\"museum|attraction|hotel\"](around:$radius,$lat,$lon);" +
+                    "way[\"amenity\"~\"restaurant|fast_food|cafe|bar|pub|fuel|bank|pharmacy\"](around:$radius,$lat,$lon);" +
+                    "way[\"leisure\"~\"park|sports_centre\"](around:$radius,$lat,$lon);" +
+                    "way[\"tourism\"~\"museum|attraction|hotel\"](around:$radius,$lat,$lon);" +
+                    ");out center;"
         }
     }
 }

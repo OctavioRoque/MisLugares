@@ -82,5 +82,17 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="250 m" />
 
+        <ImageView
+            android:id="@+id/btnGuardarFavorito"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Guardar en favoritos"
+            android:padding="6dp"
+            android:src="@drawable/ic_star"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:tint="@color/accent_gold" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

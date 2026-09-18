@@ -1,15 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:id="@+id/nav_inicio"
-        android:title="Inicio / Todos los Lugares" />
-    <item
-        android:id="@+id/nav_favoritos"
-        android:title="Mis Favoritos" />
-    <item
-        android:id="@+id/nav_cercanos"
-        android:title="Lugares Cercanos" />
-    <item
-        android:id="@+id/nav_filtrar_tipo"
-        android:title="Filtrar por Categoría" />
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_inicio"
+            android:icon="@drawable/ic_compass"
+            android:title="@string/nav_home" />
+        <item
+            android:id="@+id/nav_favoritos"
+            android:icon="@drawable/ic_star"
+            android:title="@string/my_favorites" />
+        <item
+            android:id="@+id/nav_cercanos"
+            android:icon="@drawable/ic_map_pin_plus"
+            android:title="@string/nearby_places" />
+        <item
+            android:id="@+id/nav_donde_estoy"
+            android:icon="@drawable/ic_location"
+            android:title="@string/nav_where_am_i" />
+        <item
+            android:id="@+id/nav_filtrar_tipo"
+            android:icon="@drawable/ic_mountain"
+            android:title="@string/nav_filter_category" />
+    </group>
 </menu>

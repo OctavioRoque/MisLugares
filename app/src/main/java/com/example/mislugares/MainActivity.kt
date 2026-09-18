@@ -4,39 +4,42 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.net.Uri
 import android.os.Bundle
-import android.widget.SeekBar
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.core.os.LocaleListCompat
-import androidx.drawerlayout.widget.DrawerLayout
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mislugares.databinding.ActivityMainBinding
 import com.example.mislugares.ui.EdicionLugarActivity
 import com.example.mislugares.ui.FavoritosActivity
-import com.example.mislugares.ui.LugaresAdapter
+import com.example.mislugares.ui.LugaresCercanosActivity
 import com.example.mislugares.ui.LugaresViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.material.navigation.NavigationView
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.overlay.Marker
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val viewModel: LugaresViewModel by viewModels()
-    private lateinit var adapter: LugaresAdapter
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
-    // Variables para el Menú Desplegable
-    private lateinit var drawerLayout: DrawerLayout
-    private lateinit var toggle: ActionBarDrawerToggle
+    // Coordenadas fijas de FIME - UANL (Facultad de Ingeniería Mecánica y Eléctrica)
+    private val LAT_FIME = 25.7256
+    private val LON_FIME = -100.3152
 
-    private var radioKmMaximo: Int = 5
+    private var userLocation: Location = Location("fime_uanl").apply {
+        latitude = LAT_FIME
+        longitude = LON_FIME
+        accuracy = 5f
+    }
+    private var userMarker: Marker? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -49,120 +52,79 @@ class MainActivity : AppCompatActivity() {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        setupDrawer()
-        setupRecyclerView()
-        setupListeners()
+        setupMap()
+        setupMenuCards()
         requestLocation()
     }
 
-    private fun setupDrawer() {
-        drawerLayout = binding.drawerLayout
-        val navView: NavigationView = binding.navView
+    private fun setupMap() {
+        binding.mainMapView.setTileSource(TileSourceFactory.MAPNIK)
+        binding.mainMapView.setMultiTouchControls(true)
+        val mapController = binding.mainMapView.controller
+        mapController.setZoom(17.0)
 
-        toggle = ActionBarDrawerToggle(
-            this, drawerLayout, binding.toolbar,
-            R.string.navigation_drawer_open, R.string.navigation_drawer_close
-        )
-        drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
+        // Centrado directamente en FIME - UANL
+        val fimePoint = GeoPoint(LAT_FIME, LON_FIME)
+        mapController.setCenter(fimePoint)
 
-        // Lógica de selección del Menú Desplegable (Favoritos, Categorías, etc.)
-        navView.setNavigationItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.nav_inicio -> {
-                    viewModel.cargarLugares()
-                }
-                R.id.nav_favoritos -> {
-                    val todos = viewModel.lugares.value ?: emptyList()
-                    val favoritos = todos.filter { it.esFavorito() }
-                    adapter.updateLugares(favoritos)
-                }
-                R.id.nav_filtrar_tipo -> {
-                    showFilterDialog()
-                }
-                R.id.nav_cercanos -> {
-                    startActivity(Intent(this, com.example.mislugares.ui.LugaresCercanosActivity::class.java))
-                }
-            }
-            drawerLayout.closeDrawers()
-            true
+        // Marcador visible en FIME
+        userMarker = Marker(binding.mainMapView).apply {
+            position = fimePoint
+            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+            title = "📍 Mi Ubicación: FIME - UANL"
+            snippet = "Facultad de Ingeniería Mecánica y Eléctrica (Cd. Universitaria)"
+            binding.mainMapView.overlays.add(this)
+            showInfoWindow()
+        }
+        binding.mainMapView.invalidate()
+    }
+
+    private fun setupMenuCards() {
+        // 1. Botón / Tarjeta: Mis Lugares Favoritos
+        binding.cardFavoritos.setOnClickListener {
+            startActivity(Intent(this, FavoritosActivity::class.java))
+        }
+
+        // 2. Botón / Tarjeta: Lugares Cercanos
+        binding.cardCercanos.setOnClickListener {
+            startActivity(Intent(this, LugaresCercanosActivity::class.java))
+        }
+
+        // 3. Botón / Tarjeta: Añadir Lugar
+        binding.cardAnadirLugar.setOnClickListener {
+            startActivity(Intent(this, EdicionLugarActivity::class.java))
+        }
+
+        // 4. Botón / Tarjeta: ¿Dónde estoy? -> Centra el mapa en FIME con zoom y abre la info
+        binding.cardDondeEstoy.setOnClickListener {
+            centrarEnFime(true)
+        }
+
+        // 5. Botón / Tarjeta: Cambiar Idioma
+        binding.cardCambiarIdioma.setOnClickListener {
+            showLanguageDialog()
         }
     }
 
-    private fun setupRecyclerView() {
-        adapter = LugaresAdapter(emptyList()) { index ->
-            val intent = Intent(this, EdicionLugarActivity::class.java)
-            intent.putExtra("LUGAR_INDEX", index)
-            startActivity(intent)
+    private fun centrarEnFime(mostrarMensaje: Boolean = false) {
+        val fimePoint = GeoPoint(LAT_FIME, LON_FIME)
+        binding.mainMapView.controller.animateTo(fimePoint)
+        binding.mainMapView.controller.setZoom(17.5)
+
+        userMarker?.apply {
+            position = fimePoint
+            title = "📍 Mi Ubicación: FIME - UANL"
+            snippet = "Facultad de Ingeniería Mecánica y Eléctrica"
+            showInfoWindow()
         }
-        binding.rvSitiosInteres.layoutManager = LinearLayoutManager(this)
-        binding.rvSitiosInteres.adapter = adapter
+        binding.mainMapView.invalidate()
 
-        viewModel.lugares.observe(this) { lugares ->
-            adapter.updateLugares(lugares)
-        }
-    }
-
-    private fun setupListeners() {
-        binding.btnAnadir.setOnClickListener {
-            val intent = Intent(this, EdicionLugarActivity::class.java)
-            startActivity(intent)
-        }
-
-        // Control deslizante de distancia
-        binding.seekBarDistancia.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                radioKmMaximo = if (progress == 0) 1 else progress
-                binding.tvDistanciaLabel.text = "Radio: $radioKmMaximo km"
-            }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                Toast.makeText(this@MainActivity, "Radio ajustado a $radioKmMaximo km", Toast.LENGTH_SHORT).show()
-            }
-        })
-    }
-
-    // Diálogo emergente para filtrar por Categoría (TipoLugar)
-    private fun showFilterDialog() {
-        val nombresTipos = TipoLugar.getNombres()
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Seleccionar Categoría")
-        builder.setItems(nombresTipos) { _, which ->
-            val tipoSeleccionado = TipoLugar.values()[which]
-            val todos = viewModel.lugares.value ?: emptyList()
-            val filtrados = todos.filter { it.tipo == tipoSeleccionado }
-            adapter.updateLugares(filtrados)
-        }
-        builder.setNeutralButton("Mostrar todos") { _, _ ->
-            viewModel.cargarLugares()
-        }
-        builder.show()
-    }
-
-    override fun onCreateOptionsMenu(menu: android.view.Menu?): Boolean {
-        menuInflater.inflate(R.menu.main_menu, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_favorites -> {
-                startActivity(Intent(this, FavoritosActivity::class.java))
-                true
-            }
-            R.id.action_nearby -> {
-                startActivity(Intent(this, com.example.mislugares.ui.LugaresCercanosActivity::class.java))
-                true
-            }
-            R.id.action_settings -> {
-                showLanguageDialog()
-                true
-            }
-            R.id.action_about -> {
-                Toast.makeText(this, R.string.about, Toast.LENGTH_SHORT).show()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
+        if (mostrarMensaje) {
+            Toast.makeText(
+                this,
+                "📍 Ubicación: FIME - UANL (Cd. Universitaria, San Nicolás)",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -179,26 +141,30 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 100)
-            return
-        }
-        fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
-            location?.let {
-                adapter.updateUserLocation(it)
-            }
+        val finePerm = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val coarsePerm = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+
+        if (!finePerm && !coarsePerm) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                100
+            )
         }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 100 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            requestLocation()
-        }
+        centrarEnFime(false)
     }
 
     override fun onResume() {
         super.onResume()
-        viewModel.cargarLugares()
+        binding.mainMapView.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        binding.mainMapView.onPause()
     }
 }

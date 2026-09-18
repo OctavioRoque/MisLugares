@@ -17,6 +17,7 @@ import java.util.Locale
 class LugaresAdapter(
     private var lugares: List<Lugar>,
     private var userLocation: Location? = null,
+    private val onFavoritoClick: ((Lugar) -> Unit)? = null,
     private val onLugarClick: (Int) -> Unit
 ) : RecyclerView.Adapter<LugaresAdapter.LugarViewHolder>() {
 
@@ -79,29 +80,30 @@ class LugaresAdapter(
         // Ajusta el método según cómo lo tengas definido en tu clase Lugar (ej. lugar.esFavorito() o lugar.favorito)
         val esFav = lugar.esFavorito() // O lugar.favorito
         if (esFav) {
-            holder.btnFavorito.setImageResource(android:drawable.btn_star_big_on)
+            holder.btnFavorito.setImageResource(android.R.drawable.btn_star_big_on)
         } else {
-            holder.btnFavorito.setImageResource(android:drawable.btn_star_big_off)
+            holder.btnFavorito.setImageResource(android.R.drawable.btn_star_big_off)
         }
 
         // Evento para cambiar de favorito al hacer clic en el icono
         holder.btnFavorito.setOnClickListener {
-            val nuevoEstado = !lugar.esFavorito() // O lugar.favorito
-            lugar.setFavorito(nuevoEstado) // O lugar.favorito = nuevoEstado
+            val nuevoEstado = !lugar.esFavorito()
+            lugar.setFavorito(nuevoEstado)
             
             if (nuevoEstado) {
-                holder.btnFavorito.setImageResource(android:drawable.btn_star_big_on)
+                holder.btnFavorito.setImageResource(android.R.drawable.btn_star_big_on)
             } else {
-                holder.btnFavorito.setImageResource(android:drawable.btn_star_big_off)
+                holder.btnFavorito.setImageResource(android.R.drawable.btn_star_big_off)
             }
+            onFavoritoClick?.invoke(lugar)
         }
 
         // Cálculo de distancia nativo
-        if (userLocation != null && lugar.posicion != null) {
+        if (userLocation != null) {
             val results = FloatArray(1)
             Location.distanceBetween(
                 userLocation!!.latitude, userLocation!!.longitude,
-                lugar.posicion.latitud, lugar.posicion.longitud,
+                lugar.latitud, lugar.longitud,
                 results
             )
             val distance = results[0]
