@@ -24,6 +24,7 @@ import java.util.Locale
 class LugaresCercanosAdapter(
     private var lugares: List<LugarCercano>,
     private var userLocation: Location? = null,
+    private var showDistance: Boolean = true,
     private val onSaveFavoritoClick: ((LugarCercano) -> Unit)? = null,
     private val onLugarClick: (LugarCercano) -> Unit
 ) : RecyclerView.Adapter<LugaresCercanosAdapter.ViewHolder>() {
@@ -78,8 +79,11 @@ class LugaresCercanosAdapter(
             } else null
         }
 
-        if (distancia != null) {
+        if (showDistance && distancia != null) {
             holder.tvDistancia.text = formatDistance(distancia)
+            holder.tvDistancia.visibility = View.VISIBLE
+        } else if (!lugar.region.isNullOrBlank()) {
+            holder.tvDistancia.text = lugar.region
             holder.tvDistancia.visibility = View.VISIBLE
         } else {
             holder.tvDistancia.visibility = View.GONE
@@ -149,7 +153,11 @@ class LugaresCercanosAdapter(
             "fuel" -> Pair(R.drawable.ic_fuel, "#607D8B")
             "pharmacy" -> Pair(R.drawable.ic_pharmacy, "#E91E63")
             "bank" -> Pair(R.drawable.ic_bank, "#FFC107")
-            "museum", "attraction", "viewpoint" -> Pair(R.drawable.ic_location, "#9C27B0")
+            "museum" -> Pair(R.drawable.ic_location, "#9C27B0")
+            "theatre", "arts_centre" -> Pair(R.drawable.ic_star, "#E91E63")
+            "monument", "memorial", "statue", "artwork" -> Pair(R.drawable.ic_location, "#673AB7")
+            "castle", "ruins", "fort" -> Pair(R.drawable.ic_location, "#795548")
+            "attraction", "viewpoint" -> Pair(R.drawable.ic_mountain, "#009688")
             else -> Pair(R.drawable.ic_location, "#9E9E9E") // Default gray
         }
     }
@@ -164,7 +172,15 @@ class LugaresCercanosAdapter(
             "fuel" -> context.getString(R.string.type_gas_station)
             "pharmacy" -> context.getString(R.string.type_pharmacy)
             "bank" -> context.getString(R.string.type_bank)
-            "museum", "attraction", "viewpoint" -> context.getString(R.string.type_others)
+            "museum" -> "Museo"
+            "theatre" -> "Teatro"
+            "monument" -> "Monumento"
+            "statue" -> "Estatua"
+            "artwork" -> "Obra de arte"
+            "attraction" -> "Atracción turística"
+            "viewpoint" -> "Mirador"
+            "castle" -> "Castillo"
+            "arts_centre" -> "Centro cultural"
             else -> category.replace("_", " ").replaceFirstChar { it.uppercase() }
         }
     }

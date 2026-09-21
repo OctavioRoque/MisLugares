@@ -241,7 +241,7 @@ class EdicionLugarActivity : AppCompatActivity() {
                 debounceRunnable = Runnable {
                     CoroutineScope(Dispatchers.IO).launch {
                         try {
-                            val response = nominatimService.searchAddress(query)
+                            val response = nominatimService.searchAddress(query, countryCodes = "mx")
                             if (response.isSuccessful) {
                                 val results = response.body() ?: emptyList()
                                 withContext(Dispatchers.Main) {

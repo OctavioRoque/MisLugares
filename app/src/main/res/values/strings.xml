@@ -70,6 +70,8 @@
     <string name="search_nearby">BUSCAR CERCANOS</string>
     <string name="nearby_places">Lugares Cercanos</string>
     <string name="nearby_places_desc">Descubre puntos de interés a tu alrededor con OSM</string>
+    <string name="world_places">Lugares de Interés Mundial</string>
+    <string name="world_places_desc">Museos, teatros y monumentos históricos en todo el mundo</string>
     <string name="no_nearby_found">No se encontraron lugares cercanos</string>
     <string name="no_favorites_found">No tienes lugares en tus favoritos aún</string>
     <string name="location_error">No se pudo obtener la ubicación actual</string>
@@ -78,6 +80,8 @@
     <string name="dist_1km">1 km</string>
     <string name="dist_3km">3 km</string>
     <string name="dist_5km">5 km</string>
+    <string name="dist_10km">10 km</string>
+    <string name="dist_25km">25 km</string>
     <string name="dist_todos">Todos</string>
 
     <!-- Toast and dialog strings -->

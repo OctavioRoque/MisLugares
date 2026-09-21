@@ -144,6 +144,7 @@ class LugaresCercanosActivity : AppCompatActivity() {
         adapter = LugaresCercanosAdapter(
             emptyList(),
             null,
+            true, // Mostrar distancia activado
             onSaveFavoritoClick = { lugarCercano ->
                 val guardado = lugaresViewModel.guardarLugarCercanoComoFavorito(lugarCercano)
                 if (guardado) {
