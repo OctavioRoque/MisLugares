@@ -20,15 +20,15 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_arrow_back"
-            app:navigationIconTint="@color/primary"
+            app:navigationIconTint="@color/text_primary"
             app:theme="@style/Theme.MisLugares.AppBarOverlay">
 
             <TextView
                 android:id="@+id/toolbar_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="serif"
-                android:textColor="@color/primary"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/text_primary"
                 android:textSize="20sp"
                 android:textStyle="bold" />
         </androidx.appcompat.widget.Toolbar>
@@ -61,7 +61,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="16dp"
-                android:background="@drawable/rounded_background_white"
+                android:background="@drawable/input_background"
                 android:inputType="textCapSentences"
                 android:padding="12dp"
                 android:textColor="@color/text_primary" />
@@ -81,7 +81,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="16dp"
-                android:background="@drawable/rounded_background_white"
+                android:background="@drawable/input_background"
                 android:padding="12dp" />
 
             <!-- Dirección -->
@@ -99,7 +99,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="16dp"
-                android:background="@drawable/rounded_background_white"
+                android:background="@drawable/input_background"
                 android:completionThreshold="3"
                 android:inputType="textPostalAddress"
                 android:padding="12dp"
@@ -120,7 +120,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="16dp"
-                android:background="@drawable/rounded_background_white"
+                android:background="@drawable/input_background"
                 android:inputType="phone"
                 android:padding="12dp"
                 android:textColor="@color/text_primary" />
@@ -140,7 +140,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="16dp"
-                android:background="@drawable/rounded_background_white"
+                android:background="@drawable/input_background"
                 android:inputType="textUri"
                 android:padding="12dp"
                 android:textColor="@color/text_primary" />
@@ -160,7 +160,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="16dp"
-                android:background="@drawable/rounded_background_white"
+                android:background="@drawable/input_background"
                 android:gravity="top"
                 android:inputType="textMultiLine"
                 android:lines="4"

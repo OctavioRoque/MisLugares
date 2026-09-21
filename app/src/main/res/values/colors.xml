@@ -1,26 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="background">#F5F1E8</color>
-    <color name="primary">#3D5A3D</color>
-    <color name="secondary">#C1653D</color>
-    <color name="accent_gold">#B8933A</color>
-    <color name="card_background">#FAF7EF</color>
+    <!-- Backgrounds -->
+    <color name="background">#F5F7F4</color> <!-- Soft minty off-white -->
+    <color name="card_background">#FFFFFF</color>
+    <color name="surface_variant">#E9EFE6</color> <!-- Soft pistachio tint for bubbles -->
 
-    <color name="on_primary">#FFFFFF</color>
-    <color name="text_primary">#1C1C1C</color>
-    <color name="text_secondary">#757575</color>
-    <color name="outline">#E0D8C8</color>
+    <!-- Accents -->
+    <color name="primary">#93C572</color> <!-- Pistachio green -->
+    <color name="secondary">#7BA85F</color>
+    <color name="accent_gold">#D6A042</color>
+    <color name="on_primary">#1A2D13</color> <!-- Very dark green/black for text on pistachio -->
 
+    <!-- Text & Lines -->
+    <color name="text_primary">#1C2419</color> <!-- Very dark, almost black, highly readable -->
+    <color name="text_secondary">#596654</color> <!-- Gray with green tint -->
+    <color name="outline">#D2DBD0</color> <!-- Soft green-gray border -->
+
+    <!-- Standard -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="gray_light">#E0E0E0</color>
 
     <!-- Action button colors -->
-    <color name="action_call">#4CAF50</color>
-    <color name="action_route">#2196F3</color>
-    <color name="action_web">#FF9800</color>
-    <color name="action_share">#9C27B0</color>
-    <color name="rating_star">#FFB300</color>
-    <color name="search_hint">#9E9E9E</color>
-    <color name="surface_variant">#F0EBE0</color>
+    <color name="action_call">#509E38</color>
+    <color name="action_route">#2E7DB3</color>
+    <color name="action_web">#A37820</color>
+    <color name="action_share">#854D99</color>
+    <color name="rating_star">#D99D21</color>
+    <color name="search_hint">#7B8C76</color>
 </resources>

@@ -54,11 +54,6 @@
             android:parentActivityName=".MainActivity" />
 
         <activity
-            android:name=".ui.LugaresMundialesActivity"
-            android:label="@string/world_places"
-            android:parentActivityName=".MainActivity" />
-
-        <activity
             android:name=".ui.EdicionLugarActivity"
             android:exported="true"
             android:label="Añadir Lugar"
@@ -70,6 +65,14 @@
                 <data android:scheme="mislugares" android:host="lugar" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".ui.LugaresMundialesActivity"
+            android:label="@string/world_places"
+            android:parentActivityName=".MainActivity" />
+
     </application>
 
 </manifest>
+
+

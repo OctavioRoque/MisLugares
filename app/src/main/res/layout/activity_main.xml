@@ -27,9 +27,9 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="serif"
+                    android:fontFamily="sans-serif-medium"
                     android:text="@string/main_title"
-                    android:textColor="@color/primary"
+                    android:textColor="@color/text_primary"
                     android:textSize="@dimen/text_size_h1"
                     android:textStyle="bold" />
 
@@ -44,11 +44,15 @@
         </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.core.widget.NestedScrollView
+            android:clipToPadding="false"
+            android:clipChildren="false"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <LinearLayout
+                android:clipToPadding="false"
+                android:clipChildren="false"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -64,7 +68,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="220dp"
                     android:layout_marginBottom="18dp"
-                    app:cardElevation="2dp">
+                    app:cardElevation="0dp">
 
                     <FrameLayout
                         android:layout_width="match_parent"
@@ -90,214 +94,197 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <!-- BOTÓN / TARJETA: MIS LUGARES FAVORITOS -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardFavoritos"
-                    style="@style/Widget.MisLugares.CardView"
+                                <!-- BENTO ROW 1 -->
+                <LinearLayout
+                    android:clipToPadding="false"
+                    android:clipChildren="false"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:clickable="true"
-                    android:focusable="true">
+                    android:orientation="horizontal"
+                    android:baselineAligned="false"
+                    android:layout_marginBottom="16dp">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="16dp">
-
-                        <ImageView
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
-                            android:background="@drawable/rounded_background_white"
-                            android:padding="8dp"
-                            android:src="@drawable/ic_star"
-                            app:tint="@color/accent_gold" />
-
+                    <!-- FAVORITOS -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardFavoritos"
+                        style="@style/Widget.MisLugares.CardView"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
+                        android:clickable="true"
+                        android:focusable="true">
                         <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="top|start"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+                            <ImageView
+                                android:layout_width="44dp"
+                                android:layout_height="44dp"
+                                android:background="@drawable/rounded_background_white"
+                                android:padding="8dp"
+                                android:src="@drawable/ic_star"
+                                app:tint="@color/primary" />
                             <TextView
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="serif"
+                                android:layout_marginTop="16dp"
+                                android:fontFamily="sans-serif-medium"
                                 android:text="@string/my_favorites"
                                 android:textColor="@color/text_primary"
-                                android:textSize="18sp"
+                                android:textSize="16sp"
                                 android:textStyle="bold" />
-
                             <TextView
                                 android:id="@+id/tvFavoritosCount"
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
+                                android:layout_marginTop="4dp"
                                 android:text="@string/my_favorites_desc"
                                 android:textColor="@color/text_secondary"
-                                android:textSize="13sp" />
+                                android:textSize="14sp" />
                         </LinearLayout>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                    </com.google.android.material.card.MaterialCardView>
 
-                <!-- BOTÓN / TARJETA: LUGARES CERCANOS -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardCercanos"
-                    style="@style/Widget.MisLugares.CardView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:clickable="true"
-                    android:focusable="true">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="16dp">
-
-                        <ImageView
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
-                            android:background="@drawable/rounded_background_white"
-                            android:padding="8dp"
-                            android:src="@drawable/ic_map_pin_plus"
-                            app:tint="@color/primary" />
-
+                    <!-- CERCANOS -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardCercanos"
+                        style="@style/Widget.MisLugares.CardView"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:clickable="true"
+                        android:focusable="true">
                         <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="top|start"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+                            <ImageView
+                                android:layout_width="44dp"
+                                android:layout_height="44dp"
+                                android:background="@drawable/rounded_background_white"
+                                android:padding="8dp"
+                                android:src="@drawable/ic_map_pin_plus"
+                                app:tint="@color/primary" />
                             <TextView
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="serif"
+                                android:layout_marginTop="16dp"
+                                android:fontFamily="sans-serif-medium"
                                 android:text="@string/nearby_places"
                                 android:textColor="@color/text_primary"
-                                android:textSize="18sp"
+                                android:textSize="16sp"
                                 android:textStyle="bold" />
-
                             <TextView
                                 android:id="@+id/tvCercanosCount"
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="@string/nearby_places_desc"
+                                android:layout_marginTop="4dp"
+                                android:text="@string/nearby_count"
                                 android:textColor="@color/text_secondary"
-                                android:textSize="13sp" />
+                                android:textSize="14sp" />
                         </LinearLayout>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
 
-                <!-- BOTÓN / TARJETA: LUGARES MUNDIALES -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardMundiales"
-                    style="@style/Widget.MisLugares.CardView"
+                <!-- BENTO ROW 2 -->
+                <LinearLayout
+                    android:clipToPadding="false"
+                    android:clipChildren="false"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:clickable="true"
-                    android:focusable="true">
+                    android:orientation="horizontal"
+                    android:baselineAligned="false"
+                    android:layout_marginBottom="16dp">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="16dp">
-
-                        <ImageView
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
-                            android:background="@drawable/rounded_background_white"
-                            android:padding="8dp"
-                            android:src="@drawable/ic_location"
-                            app:tint="@color/accent_gold" />
-
+                    <!-- MUNDIALES -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardMundiales"
+                        style="@style/Widget.MisLugares.CardView"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
+                        android:clickable="true"
+                        android:focusable="true">
                         <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="top|start"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+                            <ImageView
+                                android:layout_width="44dp"
+                                android:layout_height="44dp"
+                                android:background="@drawable/rounded_background_white"
+                                android:padding="8dp"
+                                android:src="@drawable/ic_web"
+                                app:tint="@color/secondary" />
                             <TextView
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="serif"
+                                android:layout_marginTop="16dp"
+                                android:fontFamily="sans-serif-medium"
                                 android:text="@string/world_places"
                                 android:textColor="@color/text_primary"
-                                android:textSize="18sp"
+                                android:textSize="16sp"
                                 android:textStyle="bold" />
-
                             <TextView
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
+                                android:layout_marginTop="4dp"
                                 android:text="@string/world_places_desc"
                                 android:textColor="@color/text_secondary"
-                                android:textSize="13sp" />
+                                android:textSize="14sp" />
                         </LinearLayout>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                    </com.google.android.material.card.MaterialCardView>
 
-                <!-- BOTÓN / TARJETA: AÑADIR LUGAR -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardAnadirLugar"
-                    style="@style/Widget.MisLugares.CardView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:clickable="true"
-                    android:focusable="true">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="16dp">
-
-                        <ImageView
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
-                            android:background="@drawable/rounded_background_white"
-                            android:padding="8dp"
-                            android:src="@drawable/ic_compass"
-                            app:tint="@color/secondary" />
-
+                    <!-- AÑADIR LUGAR -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardAnadirLugar"
+                        style="@style/Widget.MisLugares.CardView"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:clickable="true"
+                        android:focusable="true">
                         <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="top|start"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+                            <ImageView
+                                android:layout_width="44dp"
+                                android:layout_height="44dp"
+                                android:background="@drawable/rounded_background_white"
+                                android:padding="8dp"
+                                android:src="@drawable/ic_location"
+                                app:tint="@color/primary" />
                             <TextView
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="serif"
+                                android:layout_marginTop="16dp"
+                                android:fontFamily="sans-serif-medium"
                                 android:text="@string/add_places"
                                 android:textColor="@color/text_primary"
-                                android:textSize="18sp"
+                                android:textSize="16sp"
                                 android:textStyle="bold" />
-
                             <TextView
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
+                                android:layout_marginTop="4dp"
                                 android:text="@string/add_places_desc"
                                 android:textColor="@color/text_secondary"
-                                android:textSize="13sp" />
+                                android:textSize="14sp" />
                         </LinearLayout>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
 
                 <!-- BOTÓN / TARJETA: ¿DÓNDE ESTOY? (MI UBICACIÓN) -->
                 <com.google.android.material.card.MaterialCardView
@@ -308,14 +295,12 @@
                     android:layout_marginBottom="16dp"
                     android:clickable="true"
                     android:focusable="true">
-
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:padding="16dp">
-
                         <ImageView
                             android:layout_width="44dp"
                             android:layout_height="44dp"
@@ -323,79 +308,42 @@
                             android:padding="8dp"
                             android:src="@drawable/ic_compass"
                             app:tint="@color/secondary" />
-
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="16dp"
                             android:layout_weight="1"
                             android:orientation="vertical">
-
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="serif"
+                                android:fontFamily="sans-serif-medium"
                                 android:text="@string/nav_where_am_i"
                                 android:textColor="@color/text_primary"
-                                android:textSize="18sp"
+                                android:textSize="16sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- BOTÓN / TARJETA: CAMBIAR IDIOMA -->
-                <com.google.android.material.card.MaterialCardView
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/cardCambiarIdioma"
-                    style="@style/Widget.MisLugares.CardView"
-                    android:layout_width="match_parent"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:clickable="true"
-                    android:focusable="true">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="16dp">
-
-                        <ImageView
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
-                            android:background="@drawable/rounded_background_white"
-                            android:padding="8dp"
-                            android:src="@drawable/ic_compass"
-                            app:tint="@color/primary" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="serif"
-                                android:text="@string/language_selection"
-                                android:textColor="@color/text_primary"
-                                android:textSize="18sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="@string/language_selection_desc"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="13sp" />
-                        </LinearLayout>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="32dp"
+                    android:text="@string/language_selection"
+                    app:icon="@drawable/ic_language"
+                    app:iconTint="@color/on_primary"
+                    android:textColor="@color/on_primary"
+                    android:backgroundTint="@color/surface_variant"
+                    app:cornerRadius="24dp" />
 
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+

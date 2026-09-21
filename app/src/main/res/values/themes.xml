@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.MisLugares" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="Theme.MisLugares" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryVariant">@color/primary</item>
@@ -30,16 +30,15 @@
     <style name="Widget.MisLugares" parent="" />
 
     <!-- Custom Card Style -->
-    <style name="Widget.MisLugares.CardView" parent="Widget.MaterialComponents.CardView">
+    <style name="Widget.MisLugares.CardView" parent="Widget.Material3.CardView.Elevated">
         <item name="cardBackgroundColor">@color/card_background</item>
-        <item name="cardCornerRadius">4dp</item>
+        <item name="cardCornerRadius">24dp</item>
         <item name="cardElevation">2dp</item>
-        <item name="strokeColor">@color/outline</item>
-        <item name="strokeWidth">1dp</item>
+        <!-- Retiramos el borde negro feo que se solapaba y daba ruido. M3 usa elevación sutil -->
     </style>
 
     <!-- Custom Button Style -->
-    <style name="Widget.MisLugares.Button" parent="Widget.MaterialComponents.Button">
+    <style name="Widget.MisLugares.Button" parent="Widget.Material3.Button">
         <item name="backgroundTint">@color/primary</item>
         <item name="android:textColor">@color/on_primary</item>
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.MisLugares.Button</item>
@@ -49,11 +48,11 @@
 
     <style name="ShapeAppearance.MisLugares.Button" parent="">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">4dp</item>
+        <item name="cornerSize">24dp</item>
     </style>
 
     <!-- Filter Chip Style -->
-    <style name="Widget.MisLugares.Chip" parent="Widget.MaterialComponents.Chip.Choice">
+    <style name="Widget.MisLugares.Chip" parent="Widget.Material3.Chip.Filter">
         <item name="chipBackgroundColor">@color/chip_background_color</item>
         <item name="android:textColor">@color/chip_text_color</item>
         <item name="chipStrokeColor">@color/outline</item>
@@ -63,7 +62,7 @@
 
     <style name="ShapeAppearance.MisLugares.Chip" parent="">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">4dp</item>
+        <item name="cornerSize">12dp</item>
     </style>
 
     <!-- Category Tag Style -->

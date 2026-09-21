@@ -75,9 +75,6 @@ class LugaresMundialesActivity : AppCompatActivity() {
         setupRecyclerView()
         setupSearchBar()
         observeViewModel()
-        
-        // Mensaje inicial para orientar al usuario
-        Toast.makeText(this, "Escribe una ciudad para empezar", Toast.LENGTH_LONG).show()
     }
 
     private fun setupSearchBar() {
@@ -208,3 +205,4 @@ class LugaresMundialesActivity : AppCompatActivity() {
         }
     }
 }
+

@@ -110,7 +110,7 @@ class MainActivity : AppCompatActivity() {
         // Nuevo: Botón / Tarjeta: Lugares Mundiales
         binding.cardMundiales.setOnClickListener {
             // Se asume que LugaresMundialesActivity se creará a continuación
-            val intent = Intent(this, Class.forName("com.example.mislugares.ui.LugaresMundialesActivity"))
+            val intent = Intent(this, com.example.mislugares.ui.LugaresMundialesActivity::class.java)
             startActivity(intent)
         }
 
@@ -202,3 +202,4 @@ class MainActivity : AppCompatActivity() {
         binding.mainMapView.onPause()
     }
 }
+

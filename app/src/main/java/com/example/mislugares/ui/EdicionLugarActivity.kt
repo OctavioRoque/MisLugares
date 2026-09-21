@@ -108,9 +108,12 @@ class EdicionLugarActivity : AppCompatActivity() {
         binding.btnGuardar.setOnClickListener { saveLugar() }
         binding.btnVerCamino.setOnClickListener { verCamino() }
 
-        // El botón de compartir solo funciona y está disponible en lugares ya guardados
+        // Los botones de acciones adicionales (Ruta, Compartir, Copiar) solo están disponibles para lugares guardados
         val esLugarGuardado = lugarIndex != -1
         if (esLugarGuardado) {
+            binding.btnVerCamino.visibility = View.VISIBLE
+            binding.btnVerCamino.setOnClickListener { verCamino() }
+
             binding.btnCompartirLugar.visibility = View.VISIBLE
             binding.btnCompartirLugar.isEnabled = true
             binding.btnCompartirLugar.alpha = 1.0f
@@ -121,6 +124,7 @@ class EdicionLugarActivity : AppCompatActivity() {
             binding.btnCopiarEnlace.alpha = 1.0f
             binding.btnCopiarEnlace.setOnClickListener { copiarEnlaceAlPortapapeles() }
         } else {
+            binding.btnVerCamino.visibility = View.GONE
             binding.btnCompartirLugar.visibility = View.GONE
             binding.btnCopiarEnlace.visibility = View.GONE
         }
