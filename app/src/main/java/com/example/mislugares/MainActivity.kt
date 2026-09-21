@@ -107,6 +107,13 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, LugaresCercanosActivity::class.java))
         }
 
+        // Nuevo: Botón / Tarjeta: Lugares Mundiales
+        binding.cardMundiales.setOnClickListener {
+            // Se asume que LugaresMundialesActivity se creará a continuación
+            val intent = Intent(this, Class.forName("com.example.mislugares.ui.LugaresMundialesActivity"))
+            startActivity(intent)
+        }
+
         // 3. Botón / Tarjeta: Añadir Lugar
         binding.cardAnadirLugar.setOnClickListener {
             startActivity(Intent(this, EdicionLugarActivity::class.java))

@@ -11,7 +11,8 @@ data class LugarCercano(
     val categoria: String,
     val geoPunto: GeoPunto,
     var direccion: String? = null,
-    var distanciaMetros: Float? = null
+    var distanciaMetros: Float? = null,
+    var region: String? = null
 ) {
     companion object {
         const val NOMBRE_GENERICO = "Punto de interés"

@@ -70,6 +70,8 @@
     <string name="search_nearby">SEARCH NEARBY</string>
     <string name="nearby_places">Nearby Places</string>
     <string name="nearby_places_desc">Discover points of interest around you with OSM</string>
+    <string name="world_places">World Places of Interest</string>
+    <string name="world_places_desc">Museums, theaters and historical monuments worldwide</string>
     <string name="no_nearby_found">No nearby places found</string>
     <string name="no_favorites_found">You do not have any favorite places yet</string>
     <string name="location_error">Could not get current location</string>
@@ -78,6 +80,8 @@
     <string name="dist_1km">1 km</string>
     <string name="dist_3km">3 km</string>
     <string name="dist_5km">5 km</string>
+    <string name="dist_10km">10 km</string>
+    <string name="dist_25km">25 km</string>
     <string name="dist_todos">All</string>
 
     <!-- Toast and dialog strings -->

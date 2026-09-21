@@ -20,7 +20,8 @@ interface NominatimApiService {
         @Query("format") format: String = "jsonv2",
         @Query("addressdetails") addressDetails: Int = 1,
         @Query("limit") limit: Int = 5,
-        @Query("countrycodes") countryCodes: String = "mx"
+        @Query("countrycodes") countryCodes: String? = null,
+        @Query("accept-language") language: String = "es"
     ): Response<List<NominatimSearchResult>>
 
     companion object {
