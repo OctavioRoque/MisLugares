@@ -7,6 +7,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import org.osmdroid.config.Configuration
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -77,6 +81,7 @@ class EdicionLugarActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        Configuration.getInstance().userAgentValue = "MisLugaresApp/1.0 (com.example.mislugares)"
         binding = ActivityEdicionLugarBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -92,6 +97,11 @@ class EdicionLugarActivity : AppCompatActivity() {
         val titleText = if (lugarIndex == -1) getString(R.string.add_place) else getString(R.string.edit_place)
         binding.toolbar.findViewById<android.widget.TextView>(R.id.toolbar_title).text = titleText
 
+
+        // Configurar mapa preview
+        binding.mapPreview.setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK)
+        binding.mapPreview.setMultiTouchControls(true)
+        binding.mapPreview.controller.setZoom(16.0)
         setupSpinner()
         loadLugarData()
         prefillFromIntent()
@@ -223,6 +233,7 @@ class EdicionLugarActivity : AppCompatActivity() {
                 val lon = selected.lon?.toDoubleOrNull()
                 if (lat != null && lon != null) {
                     currentGPS = GeoPunto(lon, lat)
+                    updateMapPreview()
                     android.util.Log.d("EdicionLugar", "Coordenadas actualizadas desde autocompletado: $lat, $lon")
                 }
 
@@ -272,6 +283,21 @@ class EdicionLugarActivity : AppCompatActivity() {
         })
     }
 
+
+    private fun updateMapPreview() {
+        val gps = currentGPS ?: return
+        val point = GeoPoint(gps.latitud, gps.longitud)
+        binding.mapPreview.controller.setCenter(point)
+        
+        binding.mapPreview.overlays.clear()
+        val marker = Marker(binding.mapPreview)
+        marker.position = point
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+        marker.title = binding.nombre.text.toString().takeIf { it.isNotBlank() } ?: "Ubicación"
+        binding.mapPreview.overlays.add(marker)
+        binding.mapPreview.invalidate()
+    }
+
     private fun setupSpinner() {
         val tiposTraducidos = TipoLugar.values().map { tipo ->
             val resId = when (tipo) {
@@ -306,6 +332,7 @@ class EdicionLugarActivity : AppCompatActivity() {
                 binding.tipo.setSelection(it.tipo.ordinal)
                 binding.ratingBar.rating = it.valoracion
                 currentGPS = GeoPunto(it.longitud, it.latitud)
+                updateMapPreview()
             }
         }
     }
@@ -329,6 +356,7 @@ class EdicionLugarActivity : AppCompatActivity() {
             
             if (!lat.isNaN() && !lon.isNaN()) {
                 currentGPS = GeoPunto(lon, lat)
+                    updateMapPreview()
                 android.util.Log.d("EdicionLugar", "Ubicación pre-rellenada desde OSM: $lat, $lon")
             }
             
@@ -365,6 +393,7 @@ class EdicionLugarActivity : AppCompatActivity() {
 
                     if (latUri != null && lonUri != null && (latUri != 0.0 || lonUri != 0.0)) {
                         currentGPS = GeoPunto(lonUri, latUri)
+                        updateMapPreview()
                     }
                     if (tipoUri != null && tipoUri in 0 until binding.tipo.adapter.count) {
                         binding.tipo.setSelection(tipoUri)
@@ -375,6 +404,22 @@ class EdicionLugarActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        binding.mapPreview.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        binding.mapPreview.onPause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding.mapPreview.onDetach()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -399,6 +444,7 @@ class EdicionLugarActivity : AppCompatActivity() {
                     // Doble verificación por si se asignó algo mientras esperábamos al GPS
                     if (currentGPS == null) {
                         currentGPS = GeoPunto(it.longitude, it.latitude)
+                        updateMapPreview()
                         android.util.Log.d("EdicionLugar", "Ubicación GPS obtenida: ${it.latitude}, ${it.longitude}")
                     }
                 }
