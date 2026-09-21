@@ -234,7 +234,7 @@
         android:layout_height="@dimen/place_icon_size"
         android:layout_marginStart="@dimen/place_icon_margin_start"
         app:cardBackgroundColor="@color/primary"
-        app:cardCornerRadius="8dp"
+        app:cardCornerRadius="4dp"
         app:cardElevation="0dp"
         app:layout_constraintBottom_toBottomOf="@id/cardContainer"
         app:layout_constraintStart_toStartOf="parent"

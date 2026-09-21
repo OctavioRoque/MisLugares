@@ -20,7 +20,7 @@
             android:layout_width="@dimen/place_icon_size"
             android:layout_height="@dimen/place_icon_size"
             app:cardBackgroundColor="@color/primary"
-            app:cardCornerRadius="8dp"
+            app:cardCornerRadius="4dp"
             app:cardElevation="0dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">

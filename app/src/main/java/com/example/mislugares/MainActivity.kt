@@ -112,9 +112,9 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, EdicionLugarActivity::class.java))
         }
 
-        // 4. Botón / Tarjeta: ¿Dónde estoy? -> Centra el mapa en la ubicación actual con zoom y abre la info
+        // 4. Botón / Tarjeta: Explorar Mapa Global -> Abre la actividad con mapa completo
         binding.cardDondeEstoy.setOnClickListener {
-            centrarEnUbicacion(true)
+            startActivity(Intent(this, MapaGlobalActivity::class.java))
         }
 
         // 5. Botón / Tarjeta: Cambiar Idioma

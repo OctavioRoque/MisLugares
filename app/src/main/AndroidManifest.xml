@@ -38,6 +38,12 @@
         </activity>
 
         <activity
+            android:name=".MapaGlobalActivity"
+            android:label="@string/nav_where_am_i"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/Theme.MisLugares.NoActionBar" />
+
+        <activity
             android:name=".ui.FavoritosActivity"
             android:label="Mis Favoritos"
             android:parentActivityName=".MainActivity" />
