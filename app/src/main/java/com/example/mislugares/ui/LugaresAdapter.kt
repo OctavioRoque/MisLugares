@@ -90,7 +90,7 @@ class LugaresAdapter(
         }
         holder.tvTipo.text = context.getString(tipoRes).uppercase(Locale.getDefault())
 
-        // ⭐ RatingBar - mostrar valoración del lugar
+        // RatingBar - mostrar valoración del lugar
         holder.ratingBar.rating = lugar.valoracion
 
         // Configurar estado inicial del botón de favorito (activo / inactivo)
@@ -129,7 +129,7 @@ class LugaresAdapter(
             holder.tvDistancia.visibility = View.GONE
         }
 
-        // 🧭 Botón de Ruta GPS - Abre Google Maps con la ruta trazada
+        // Botón de Ruta GPS - Abre Google Maps con la ruta trazada
         holder.btnRoute.setOnClickListener {
             if (lugar.latitud != 0.0 || lugar.longitud != 0.0) {
                 val uri = Uri.parse("geo:${lugar.latitud},${lugar.longitud}?q=${lugar.latitud},${lugar.longitud}(${Uri.encode(lugar.nombre)})")
@@ -143,7 +143,7 @@ class LugaresAdapter(
             }
         }
 
-        // 📞 Botón de Llamar - Abre el marcador telefónico
+        // Botón de Llamar - Abre el marcador telefónico
         holder.btnCall.setOnClickListener {
             val tel = lugar.telefono
             if (tel != 0) {
@@ -154,14 +154,14 @@ class LugaresAdapter(
             }
         }
 
-        // 📤 Botón de Compartir
+        // Botón de Compartir
         holder.btnShare.setOnClickListener {
             val mensaje = buildString {
-                append("📍 ${lugar.nombre}")
-                if (!lugar.direccion.isNullOrBlank()) append("\n📫 ${lugar.direccion}")
-                if (lugar.telefono != 0) append("\n📞 Tel: ${lugar.telefono}")
+                append(lugar.nombre)
+                if (!lugar.direccion.isNullOrBlank()) append("\nDirección: ${lugar.direccion}")
+                if (lugar.telefono != 0) append("\nTel: ${lugar.telefono}")
                 if (lugar.latitud != 0.0 || lugar.longitud != 0.0) {
-                    append("\n🗺️ Google Maps: https://maps.google.com/?q=${lugar.latitud},${lugar.longitud}")
+                    append("\nGoogle Maps: https://maps.google.com/?q=${lugar.latitud},${lugar.longitud}")
                 }
             }
             val shareIntent = Intent(Intent.ACTION_SEND).apply {

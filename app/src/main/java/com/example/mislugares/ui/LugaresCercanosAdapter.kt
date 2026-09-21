@@ -85,7 +85,7 @@ class LugaresCercanosAdapter(
             holder.tvDistancia.visibility = View.GONE
         }
 
-        // 🧭 Botón de Ruta GPS - Abre Google Maps con la ruta trazada
+        // Botón de Ruta GPS - Abre Google Maps con la ruta trazada
         holder.btnRouteCercano.setOnClickListener {
             val lat = lugar.geoPunto.latitud
             val lon = lugar.geoPunto.longitud
@@ -99,7 +99,7 @@ class LugaresCercanosAdapter(
             }
         }
 
-        // ⭐ Botón de guardar en favoritos
+        // Botón de guardar en favoritos
         holder.btnGuardarFavoritoContainer.setOnClickListener {
             onSaveFavoritoClick?.invoke(lugar)
         }

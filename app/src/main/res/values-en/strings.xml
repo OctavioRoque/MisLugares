@@ -85,7 +85,7 @@
     <string name="removed_from_favorites">Removed from favorites</string>
     <string name="already_in_favorites">Already in your favorites</string>
     <string name="saved_to_favorites">saved to My Favorites</string>
-    <string name="current_location_title">📍 My Current Location</string>
+    <string name="current_location_title">My Current Location</string>
     <string name="getting_location">Getting current GPS location...</string>
     <string name="view_in_google_maps">View in Google Maps</string>
     <string name="close">Close</string>

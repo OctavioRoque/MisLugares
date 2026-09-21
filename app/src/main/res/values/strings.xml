@@ -85,7 +85,7 @@
     <string name="removed_from_favorites">Quitado de favoritos</string>
     <string name="already_in_favorites">Ya está en tus favoritos</string>
     <string name="saved_to_favorites">guardado en Mis Favoritos</string>
-    <string name="current_location_title">📍 Mi Ubicación Actual</string>
+    <string name="current_location_title">Mi Ubicación Actual</string>
     <string name="getting_location">Obteniendo ubicación GPS actual...</string>
     <string name="view_in_google_maps">Ver en Google Maps</string>
     <string name="close">Cerrar</string>

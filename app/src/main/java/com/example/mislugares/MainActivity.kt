@@ -59,7 +59,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * 📊 Muestra contadores dinámicos en las tarjetas del dashboard.
+     * Muestra contadores dinámicos en las tarjetas del dashboard.
      */
     private fun setupCounters() {
         viewModel.lugares.observe(this) { lugares ->
@@ -88,7 +88,7 @@ class MainActivity : AppCompatActivity() {
         userMarker = Marker(binding.mainMapView).apply {
             position = fimePoint
             setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-            title = "📍 Mi Ubicación: FIME - UANL"
+            title = "Mi Ubicación: FIME - UANL"
             snippet = "Facultad de Ingeniería Mecánica y Eléctrica (Cd. Universitaria)"
             binding.mainMapView.overlays.add(this)
             showInfoWindow()
@@ -133,7 +133,7 @@ class MainActivity : AppCompatActivity() {
 
         userMarker?.apply {
             position = geoPoint
-            title = if (esFime) "📍 Mi Ubicación: FIME - UANL" else "📍 Mi Ubicación Actual"
+            title = if (esFime) "Mi Ubicación: FIME - UANL" else "Mi Ubicación Actual"
             snippet = if (esFime) "Facultad de Ingeniería Mecánica y Eléctrica" else String.format(java.util.Locale.getDefault(), "Lat: %.4f, Lon: %.4f", userLocation.latitude, userLocation.longitude)
             showInfoWindow()
         }
@@ -141,9 +141,9 @@ class MainActivity : AppCompatActivity() {
 
         if (mostrarMensaje) {
             val mensaje = if (esFime) {
-                "📍 Ubicación: FIME - UANL (Cd. Universitaria, San Nicolás)"
+                "Ubicación: FIME - UANL (Cd. Universitaria, San Nicolás)"
             } else {
-                String.format(java.util.Locale.getDefault(), "📍 Ubicación actual: %.4f, %.4f", userLocation.latitude, userLocation.longitude)
+                String.format(java.util.Locale.getDefault(), "Ubicación actual: %.4f, %.4f", userLocation.latitude, userLocation.longitude)
             }
             Toast.makeText(this, mensaje, Toast.LENGTH_SHORT).show()
         }

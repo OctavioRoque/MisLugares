@@ -98,7 +98,7 @@ class FavoritosActivity : AppCompatActivity() {
     }
 
     /**
-     * 🔍 Configura la barra de búsqueda con filtrado instantáneo.
+     * Configura la barra de búsqueda con filtrado instantáneo.
      */
     private fun setupSearchBar() {
         binding.etSearchFavoritos.addTextChangedListener(object : TextWatcher {

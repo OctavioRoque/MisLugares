@@ -56,15 +56,6 @@
                 android:paddingTop="12dp"
                 android:paddingBottom="32dp">
 
-                <!-- Subtítulo de bienvenida -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:fontFamily="serif"
-                    android:text="@string/welcome_subtitle"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="16sp" />
 
                 <!-- MAPA DE MI UBICACIÓN (FIME - UANL) -->
                 <com.google.android.material.card.MaterialCardView

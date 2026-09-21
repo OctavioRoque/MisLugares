@@ -105,7 +105,7 @@ class LugaresCercanosActivity : AppCompatActivity() {
     }
 
     /**
-     * 🔍 Configura la barra de búsqueda con filtrado instantáneo por nombre.
+     * Configura la barra de búsqueda con filtrado instantáneo por nombre.
      */
     private fun setupSearchBar() {
         binding.etSearchCercanos.addTextChangedListener(object : TextWatcher {
@@ -147,7 +147,7 @@ class LugaresCercanosActivity : AppCompatActivity() {
             onSaveFavoritoClick = { lugarCercano ->
                 val guardado = lugaresViewModel.guardarLugarCercanoComoFavorito(lugarCercano)
                 if (guardado) {
-                    Toast.makeText(this, "⭐ '${lugarCercano.nombre}' ${getString(R.string.saved_to_favorites)}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "'${lugarCercano.nombre}' ${getString(R.string.saved_to_favorites)}", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(this, "'${lugarCercano.nombre}' ${getString(R.string.already_in_favorites)}", Toast.LENGTH_SHORT).show()
                 }

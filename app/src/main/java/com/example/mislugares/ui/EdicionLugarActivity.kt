@@ -144,14 +144,14 @@ class EdicionLugarActivity : AppCompatActivity() {
         val deepLinkWeb = "https://mislugares.app/lugar?$queryParams"
 
         val mensaje = buildString {
-            append("📍 $nombre")
-            if (direccion.isNotBlank()) append("\n📫 $direccion")
-            if (tel.isNotBlank() && tel != "0") append("\n📞 Tel: $tel")
-            if (comentario.isNotBlank()) append("\n💬 $comentario")
+            append(nombre)
+            if (direccion.isNotBlank()) append("\nDirección: $direccion")
+            if (tel.isNotBlank() && tel != "0") append("\nTel: $tel")
+            if (comentario.isNotBlank()) append("\nComentario: $comentario")
             if (pos != null && (pos.latitud != 0.0 || pos.longitud != 0.0)) {
-                append("\n🗺️ Google Maps: https://maps.google.com/?q=${pos.latitud},${pos.longitud}")
+                append("\nGoogle Maps: https://maps.google.com/?q=${pos.latitud},${pos.longitud}")
             }
-            append("\n\n📲 ${getString(R.string.open_in_app)}:\n$deepLinkWeb\n(O: $deepLinkApp)")
+            append("\n\n${getString(R.string.open_in_app)}:\n$deepLinkWeb\n(O: $deepLinkApp)")
         }
 
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
