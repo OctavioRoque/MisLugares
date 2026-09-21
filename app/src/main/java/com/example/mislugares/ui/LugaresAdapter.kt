@@ -24,10 +24,6 @@ class LugaresAdapter(
         val tvDireccion: TextView = view.findViewById(R.id.tvDireccion)
         val tvTipo: TextView = view.findViewById(R.id.tvTipo)
         val tvDistancia: TextView = view.findViewById(R.id.tvDistancia)
-        val ivIcon: android.widget.ImageView = view.findViewById(R.id.ivIcon)
-        val viewConnector: View = view.findViewById(R.id.viewConnector)
-        val cardContainer: View = view.findViewById(R.id.cardContainer)
-        val cardIcon: View = view.findViewById(R.id.cardIcon)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LugarViewHolder {
@@ -41,21 +37,6 @@ class LugaresAdapter(
         holder.tvNombre.text = lugar.nombre
         holder.tvDireccion.text = lugar.direccion
         
-        // Hide connector for last item
-        holder.viewConnector.visibility = if (position == itemCount - 1) View.INVISIBLE else View.VISIBLE
-
-        // Icon based on type
-        val iconRes = when (lugar.tipo) {
-            com.example.mislugares.TipoLugar.NATURALEZA -> R.drawable.ic_mountain
-            com.example.mislugares.TipoLugar.RESTAURANTE -> R.drawable.ic_restaurant
-            com.example.mislugares.TipoLugar.BAR -> R.drawable.ic_restaurant
-            com.example.mislugares.TipoLugar.HOTEL -> R.drawable.ic_hotel
-            com.example.mislugares.TipoLugar.GASOLINERA -> R.drawable.ic_fuel
-            com.example.mislugares.TipoLugar.OTROS -> R.drawable.ic_compass
-            else -> R.drawable.ic_location
-        }
-        holder.ivIcon.setImageResource(iconRes)
-
         // Traducción de TipoLugar
         val tipoRes = when (lugar.tipo) {
             com.example.mislugares.TipoLugar.OTROS -> R.string.type_others
@@ -71,7 +52,7 @@ class LugaresAdapter(
             com.example.mislugares.TipoLugar.GASOLINERA -> R.string.type_gas_station
             else -> R.string.type_others
         }
-        holder.tvTipo.text = context.getString(tipoRes).uppercase(Locale.getDefault())
+        holder.tvTipo.text = context.getString(tipoRes)
 
         // Cálculo de distancia nativo
         if (userLocation != null && lugar.posicion != null) {
@@ -88,10 +69,7 @@ class LugaresAdapter(
             holder.tvDistancia.visibility = View.GONE
         }
 
-        // Toda la tarjeta y el icono son clickeables
-        val clickListener = View.OnClickListener { onLugarClick(position) }
-        holder.cardContainer.setOnClickListener(clickListener)
-        holder.cardIcon.setOnClickListener(clickListener)
+        holder.itemView.setOnClickListener { onLugarClick(position) }
     }
 
     override fun getItemCount() = lugares.size
