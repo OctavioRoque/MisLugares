@@ -1,12 +1,16 @@
 package com.example.mislugares.ui
 
 import android.Manifest
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Base64
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
@@ -29,6 +33,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
+import org.json.JSONObject
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
@@ -110,24 +115,74 @@ class EdicionLugarActivity : AppCompatActivity() {
             binding.btnCompartirLugar.isEnabled = true
             binding.btnCompartirLugar.alpha = 1.0f
             binding.btnCompartirLugar.setOnClickListener { compartirLugar() }
+
+            binding.btnCopiarEnlace.visibility = View.VISIBLE
+            binding.btnCopiarEnlace.isEnabled = true
+            binding.btnCopiarEnlace.alpha = 1.0f
+            binding.btnCopiarEnlace.setOnClickListener { copiarEnlaceAlPortapapeles() }
         } else {
             binding.btnCompartirLugar.visibility = View.GONE
+            binding.btnCopiarEnlace.visibility = View.GONE
         }
 
         setupAddressAutocomplete()
     }
 
-    private fun compartirLugar() {
-        val nombre = binding.nombre.text.toString()
-        val direccion = binding.direccion.text.toString()
+    private fun generarDeepLink(): String {
+        val nombre = binding.nombre.text.toString().trim()
+        val direccion = binding.direccion.text.toString().trim()
         val pos = currentGPS
+        val tipoOrdinal = binding.tipo.selectedItemPosition
+        val tel = binding.telefono.text.toString().trim()
+        val url = binding.url.text.toString().trim()
+        val comentario = binding.comentario.text.toString().trim()
+
+        val json = JSONObject().apply {
+            put("nombre", nombre)
+            if (direccion.isNotBlank()) put("direccion", direccion)
+            if (pos != null && (pos.latitud != 0.0 || pos.longitud != 0.0)) {
+                put("lat", pos.latitud)
+                put("lon", pos.longitud)
+            }
+            put("tipo", tipoOrdinal)
+            if (tel.isNotBlank() && tel != "0") put("tel", tel)
+            if (url.isNotBlank()) put("url", url)
+            if (comentario.isNotBlank()) put("comentario", comentario)
+        }
+
+        val encoded = Base64.encodeToString(json.toString().toByteArray(), Base64.URL_SAFE or Base64.NO_WRAP)
+        return "mislugares://lugar?data=$encoded"
+    }
+
+    private fun copiarEnlaceAlPortapapeles() {
+        val deepLink = generarDeepLink()
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("Lugar compartido", deepLink)
+        clipboard.setPrimaryClip(clip)
+        Toast.makeText(this, getString(R.string.link_copied), Toast.LENGTH_SHORT).show()
+    }
+
+    private fun compartirLugar() {
+        val nombre = binding.nombre.text.toString().trim()
+        val direccion = binding.direccion.text.toString().trim()
+        val pos = currentGPS
+        val tel = binding.telefono.text.toString().trim()
+        val comentario = binding.comentario.text.toString().trim()
+
+        val deepLinkApp = generarDeepLink()
+        val encodedData = deepLinkApp.substringAfter("data=")
+        val bridgeUrl = "https://octavioroque.github.io/MisLugares/?data=$encodedData"
 
         val mensaje = buildString {
-            append("📍 $nombre")
-            if (direccion.isNotBlank()) append("\n📫 $direccion")
+            append(nombre)
+            if (direccion.isNotBlank()) append("\nDirección: $direccion")
+            if (tel.isNotBlank() && tel != "0") append("\nTel: $tel")
+            if (comentario.isNotBlank()) append("\nComentario: $comentario")
             if (pos != null && (pos.latitud != 0.0 || pos.longitud != 0.0)) {
-                append("\n🗺️ https://maps.google.com/?q=${pos.latitud},${pos.longitud}")
+                append("\nGoogle Maps: https://maps.google.com/?q=${pos.latitud},${pos.longitud}")
             }
+            append("\n\n${getString(R.string.open_in_app)}:\n$bridgeUrl")
+            append("\n\n${getString(R.string.share_link_disclaimer)}")
         }
 
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
@@ -139,7 +194,7 @@ class EdicionLugarActivity : AppCompatActivity() {
     }
 
     private fun setupAddressAutocomplete() {
-        val direccionView = binding.direccion as AutoCompleteTextView
+        val direccionView = binding.direccion
 
         // Listener para cuando el usuario selecciona una sugerencia
         direccionView.setOnItemClickListener { _, _, position, _ ->
@@ -245,7 +300,8 @@ class EdicionLugarActivity : AppCompatActivity() {
                 binding.url.setText(it.url)
                 binding.comentario.setText(it.comentario)
                 binding.tipo.setSelection(it.tipo.ordinal)
-                currentGPS = it.posicion
+                binding.ratingBar.rating = it.valoracion
+                currentGPS = GeoPunto(it.longitud, it.latitud)
             }
         }
     }
@@ -277,6 +333,52 @@ class EdicionLugarActivity : AppCompatActivity() {
                 binding.tipo.setSelection(tipoOrdinal)
             }
         }
+
+        // Manejar Deep Link si se abre desde enlace compartido
+        val dataUri = intent.data
+        if (lugarIndex == -1 && dataUri != null) {
+            val encodedData = dataUri.getQueryParameter("data")
+            if (encodedData != null) {
+                try {
+                    val decodedBytes = Base64.decode(encodedData, Base64.URL_SAFE or Base64.NO_WRAP)
+                    val jsonStr = String(decodedBytes, Charsets.UTF_8)
+                    val json = JSONObject(jsonStr)
+
+                    val nombreUri = json.optString("nombre")
+                    val dirUri = json.optString("direccion")
+                    val latUri = if (json.has("lat")) json.optDouble("lat") else null
+                    val lonUri = if (json.has("lon")) json.optDouble("lon") else null
+                    val tipoUri = if (json.has("tipo")) json.optInt("tipo") else null
+                    val telUri = json.optString("tel")
+                    val urlUri = json.optString("url")
+                    val comentarioUri = json.optString("comentario")
+
+                    if (!nombreUri.isNullOrBlank()) binding.nombre.setText(nombreUri)
+                    if (!dirUri.isNullOrBlank()) binding.direccion.setText(dirUri)
+                    if (!telUri.isNullOrBlank() && telUri != "0") binding.telefono.setText(telUri)
+                    if (!urlUri.isNullOrBlank()) binding.url.setText(urlUri)
+                    if (!comentarioUri.isNullOrBlank()) binding.comentario.setText(comentarioUri)
+
+                    if (latUri != null && lonUri != null && (latUri != 0.0 || lonUri != 0.0)) {
+                        currentGPS = GeoPunto(lonUri, latUri)
+                    }
+                    if (tipoUri != null && tipoUri in 0 until binding.tipo.adapter.count) {
+                        binding.tipo.setSelection(tipoUri)
+                    }
+                    Toast.makeText(this, getString(R.string.shared_place_received), Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    android.util.Log.e("EdicionLugar", "Error al parsear deep link: ${e.message}")
+                }
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        lugarIndex = intent.getIntExtra("LUGAR_INDEX", -1)
+        loadLugarData()
+        prefillFromIntent()
     }
 
     private fun requestLocation() {
@@ -315,7 +417,14 @@ class EdicionLugarActivity : AppCompatActivity() {
         }
 
         val posicion = currentGPS ?: GeoPunto(0.0, 0.0)
-        val nuevoLugar = Lugar(nombre, direccion, posicion.longitud, posicion.latitud, tipo, telefono, url, comentario, 0)
+        val esFav = if (lugarIndex != -1) {
+            viewModel.getLugar(lugarIndex)?.esFavorito() ?: false
+        } else {
+            intent.getBooleanExtra("PREFILL_FAVORITO", false)
+        }
+        val valoracion = binding.ratingBar.rating
+        val nuevoLugar = Lugar(nombre, direccion, posicion.longitud, posicion.latitud, tipo, telefono, url, comentario, valoracion.toInt(), esFav)
+        nuevoLugar.valoracion = valoracion
 
         if (lugarIndex == -1) {
             viewModel.addLugar(nuevoLugar)

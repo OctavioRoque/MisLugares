@@ -35,40 +35,135 @@
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/cgDistancia"
-        android:layout_width="0dp"
+    <HorizontalScrollView
+        android:id="@+id/scrollDistancia"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
+        android:paddingHorizontal="16dp"
         android:paddingTop="8dp"
-        app:selectionRequired="true"
-        app:singleSelection="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:scrollbars="none"
         app:layout_constraintTop_toBottomOf="@id/appBarLayout">
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip1km"
-            style="@style/Widget.MisLugares.Chip"
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/cgDistancia"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/dist_1km" />
+            app:selectionRequired="true"
+            app:singleLine="true"
+            app:singleSelection="true">
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip3km"
-            style="@style/Widget.MisLugares.Chip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/dist_3km" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip1km"
+                style="@style/Widget.MisLugares.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/dist_1km" />
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip5km"
-            style="@style/Widget.MisLugares.Chip"
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip3km"
+                style="@style/Widget.MisLugares.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/dist_3km" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip5km"
+                style="@style/Widget.MisLugares.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/dist_5km" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipTodosDistancia"
+                style="@style/Widget.MisLugares.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/dist_todos" />
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
+
+    <!-- Filtros de categoría para Lugares Cercanos -->
+    <HorizontalScrollView
+        android:id="@+id/scrollCategoriasCercanos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="4dp"
+        android:scrollbars="none"
+        app:layout_constraintTop_toBottomOf="@id/scrollDistancia">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/cgCategoriasCercanos"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/dist_5km" />
-    </com.google.android.material.chip.ChipGroup>
+            app:selectionRequired="true"
+            app:singleLine="true"
+            app:singleSelection="true">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipCercanoTodos"
+                style="@style/Widget.MisLugares.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/filter_all" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipCercanoComida"
+                style="@style/Widget.MisLugares.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/filter_food_drinks" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipCercanoNaturaleza"
+                style="@style/Widget.MisLugares.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/filter_nature" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipCercanoHoteles"
+                style="@style/Widget.MisLugares.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/type_hotel" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipCercanoGasolineras"
+                style="@style/Widget.MisLugares.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/type_gas_station" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipCercanoServicios"
+                style="@style/Widget.MisLugares.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/filter_services" />
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
+
+    <!-- Barra de búsqueda en tiempo real -->
+    <EditText
+        android:id="@+id/etSearchCercanos"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/search_background"
+        android:drawableStart="@drawable/ic_search"
+        android:drawablePadding="8dp"
+        android:drawableTint="@color/search_hint"
+        android:hint="@string/search_hint"
+        android:inputType="text"
+        android:paddingHorizontal="16dp"
+        android:textColor="@color/text_primary"
+        android:textColorHint="@color/search_hint"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/scrollCategoriasCercanos" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvLugaresCercanos"
@@ -78,7 +173,7 @@
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cgDistancia"
+        app:layout_constraintTop_toBottomOf="@id/etSearchCercanos"
         tools:listitem="@layout/item_lugar_cercano" />
 
     <ProgressBar

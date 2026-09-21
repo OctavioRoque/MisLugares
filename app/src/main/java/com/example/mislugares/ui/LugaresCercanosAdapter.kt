@@ -1,12 +1,15 @@
 package com.example.mislugares.ui
 
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.location.Location
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.widget.ImageViewCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -16,12 +19,18 @@ import java.util.Locale
 
 /**
  * Adapter para mostrar los lugares cercanos obtenidos de OSM.
+ * Incluye botón de ruta GPS y guardado en favoritos.
  */
 class LugaresCercanosAdapter(
     private var lugares: List<LugarCercano>,
     private var userLocation: Location? = null,
+    private val onSaveFavoritoClick: ((LugarCercano) -> Unit)? = null,
     private val onLugarClick: (LugarCercano) -> Unit
 ) : RecyclerView.Adapter<LugaresCercanosAdapter.ViewHolder>() {
+
+    // Copia completa para búsqueda
+    private var lugaresCompletos: List<LugarCercano> = lugares
+    private var searchQuery: String = ""
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvNombre: TextView = view.findViewById(R.id.tvNombre)
@@ -29,6 +38,9 @@ class LugaresCercanosAdapter(
         val tvTipo: TextView = view.findViewById(R.id.tvTipo)
         val tvDistancia: TextView = view.findViewById(R.id.tvDistancia)
         val ivIcono: ImageView = view.findViewById(R.id.ivIcono)
+        val btnGuardarFavorito: ImageView = view.findViewById(R.id.btnGuardarFavorito)
+        val btnRouteCercano: LinearLayout = view.findViewById(R.id.btnRouteCercano)
+        val btnGuardarFavoritoContainer: LinearLayout = view.findViewById(R.id.btnGuardarFavoritoContainer)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -73,18 +85,57 @@ class LugaresCercanosAdapter(
             holder.tvDistancia.visibility = View.GONE
         }
 
+        // Botón de Ruta GPS - Abre Google Maps con la ruta trazada
+        holder.btnRouteCercano.setOnClickListener {
+            val lat = lugar.geoPunto.latitud
+            val lon = lugar.geoPunto.longitud
+            val uri = Uri.parse("geo:$lat,$lon?q=$lat,$lon(${Uri.encode(lugar.nombre)})")
+            val intent = Intent(Intent.ACTION_VIEW, uri)
+            intent.setPackage("com.google.android.apps.maps")
+            if (intent.resolveActivity(context.packageManager) != null) {
+                context.startActivity(intent)
+            } else {
+                context.startActivity(Intent(Intent.ACTION_VIEW, uri))
+            }
+        }
+
+        // Botón de guardar en favoritos
+        holder.btnGuardarFavoritoContainer.setOnClickListener {
+            onSaveFavoritoClick?.invoke(lugar)
+        }
+
         holder.itemView.setOnClickListener { onLugarClick(lugar) }
     }
 
     override fun getItemCount() = lugares.size
 
     fun updateLugares(newLugares: List<LugarCercano>) {
-        this.lugares = newLugares
-        notifyDataSetChanged()
+        this.lugaresCompletos = newLugares
+        applySearchFilter()
     }
 
     fun updateUserLocation(location: Location) {
         this.userLocation = location
+        notifyDataSetChanged()
+    }
+
+    /**
+     * Filtra los lugares por texto de búsqueda (nombre o dirección).
+     */
+    fun filterByText(query: String) {
+        searchQuery = query.trim().lowercase(Locale.getDefault())
+        applySearchFilter()
+    }
+
+    private fun applySearchFilter() {
+        lugares = if (searchQuery.isBlank()) {
+            lugaresCompletos
+        } else {
+            lugaresCompletos.filter { lugar ->
+                lugar.nombre.lowercase(Locale.getDefault()).contains(searchQuery) ||
+                (lugar.direccion?.lowercase(Locale.getDefault())?.contains(searchQuery) == true)
+            }
+        }
         notifyDataSetChanged()
     }
 
@@ -119,10 +170,11 @@ class LugaresCercanosAdapter(
     }
 
     private fun formatDistance(meters: Float): String {
-        return if (meters < 1000) {
-            String.format(Locale.getDefault(), "%.0f m", meters)
+        val km = meters / 1000f
+        return if (km < 1.0f) {
+            String.format(Locale.getDefault(), "%.2f km", km)
         } else {
-            String.format(Locale.getDefault(), "%.1f km", meters / 1000)
+            String.format(Locale.getDefault(), "%.1f km", km)
         }
     }
 }

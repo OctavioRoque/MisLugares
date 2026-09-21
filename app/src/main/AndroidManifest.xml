@@ -49,8 +49,16 @@
 
         <activity
             android:name=".ui.EdicionLugarActivity"
+            android:exported="true"
             android:label="Añadir Lugar"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="mislugares" android:host="lugar" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

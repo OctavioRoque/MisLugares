@@ -5,6 +5,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -21,13 +23,20 @@ import com.google.android.gms.location.LocationServices
 
 /**
  * Pantalla para buscar y mostrar lugares de interés cercanos usando Overpass API.
+ * Incluye filtros de distancia, filtros por tipo de lugar, búsqueda en vivo
+ * y guardado directo en Favoritos.
  */
 class LugaresCercanosActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLugaresCercanosBinding
     private val viewModel: LugaresCercanosViewModel by viewModels()
+    private val lugaresViewModel: LugaresViewModel by viewModels()
     private lateinit var adapter: LugaresCercanosAdapter
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var lastLocation: Location? = null
+
+    private var radioMaxMetros: Int = 1000
+    private var categoriaSeleccionada: String = "TODOS"
+    private var listaCercanosOriginal: List<LugarCercano> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -44,33 +53,110 @@ class LugaresCercanosActivity : AppCompatActivity() {
 
         setupRecyclerView()
         setupFilters()
+        setupSearchBar()
         observeViewModel()
         requestLocation()
     }
 
     private fun setupFilters() {
-        binding.cgDistancia.setOnCheckedChangeListener { _, checkedId ->
-            lastLocation?.let { location ->
-                val radio = when (checkedId) {
-                    R.id.chip1km -> 1000
-                    R.id.chip3km -> 3000
-                    R.id.chip5km -> 5000
-                    else -> 1000
-                }
-                viewModel.buscarLugaresCercanos(location, radio)
-            }
+        // Filtros de distancia (1 km, 3 km, 5 km, Todos)
+        binding.chip1km.setOnClickListener {
+            radioMaxMetros = 1000
+            aplicarFiltros()
         }
-        // Seleccionar 1km por defecto
-        binding.chip1km.isChecked = true
+        binding.chip3km.setOnClickListener {
+            radioMaxMetros = 3000
+            aplicarFiltros()
+        }
+        binding.chip5km.setOnClickListener {
+            radioMaxMetros = 5000
+            aplicarFiltros()
+        }
+        binding.chipTodosDistancia.setOnClickListener {
+            radioMaxMetros = Int.MAX_VALUE
+            aplicarFiltros()
+        }
+
+        // Filtros por tipo de categoría
+        binding.chipCercanoTodos.setOnClickListener {
+            categoriaSeleccionada = "TODOS"
+            aplicarFiltros()
+        }
+        binding.chipCercanoComida.setOnClickListener {
+            categoriaSeleccionada = "COMIDA"
+            aplicarFiltros()
+        }
+        binding.chipCercanoNaturaleza.setOnClickListener {
+            categoriaSeleccionada = "NATURALEZA"
+            aplicarFiltros()
+        }
+        binding.chipCercanoHoteles.setOnClickListener {
+            categoriaSeleccionada = "HOTELES"
+            aplicarFiltros()
+        }
+        binding.chipCercanoGasolineras.setOnClickListener {
+            categoriaSeleccionada = "GASOLINERAS"
+            aplicarFiltros()
+        }
+        binding.chipCercanoServicios.setOnClickListener {
+            categoriaSeleccionada = "SERVICIOS"
+            aplicarFiltros()
+        }
+    }
+
+    /**
+     * Configura la barra de búsqueda con filtrado instantáneo por nombre.
+     */
+    private fun setupSearchBar() {
+        binding.etSearchCercanos.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                adapter.filterByText(s?.toString() ?: "")
+            }
+        })
+    }
+
+    private fun aplicarFiltros() {
+        val filtrados = listaCercanosOriginal.filter { lugar ->
+            // Filtro 1: Distancia máxima seleccionada
+            val cumpleDistancia = (lugar.distanciaMetros ?: 0f) <= radioMaxMetros
+
+            // Filtro 2: Categoría seleccionada
+            val cat = lugar.categoria.lowercase()
+            val cumpleCategoria = when (categoriaSeleccionada) {
+                "TODOS" -> true
+                "COMIDA" -> cat in listOf("restaurant", "fast_food", "cafe", "bar", "pub")
+                "NATURALEZA" -> cat in listOf("park", "nature", "nature_reserve")
+                "HOTELES" -> cat in listOf("hotel", "hostel", "motel")
+                "GASOLINERAS" -> cat == "fuel"
+                "SERVICIOS" -> cat in listOf("bank", "pharmacy", "sports_centre", "gym", "stadium")
+                else -> true
+            }
+
+            cumpleDistancia && cumpleCategoria
+        }
+        adapter.updateLugares(filtrados)
+        binding.tvEmpty.visibility = if (filtrados.isEmpty()) View.VISIBLE else View.GONE
     }
 
     private fun setupRecyclerView() {
-        adapter = LugaresCercanosAdapter(emptyList()) { lugarCercano ->
+        adapter = LugaresCercanosAdapter(
+            emptyList(),
+            null,
+            onSaveFavoritoClick = { lugarCercano ->
+                val guardado = lugaresViewModel.guardarLugarCercanoComoFavorito(lugarCercano)
+                if (guardado) {
+                    Toast.makeText(this, "'${lugarCercano.nombre}' ${getString(R.string.saved_to_favorites)}", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "'${lugarCercano.nombre}' ${getString(R.string.already_in_favorites)}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        ) { lugarCercano ->
             // Abrir editor prellenado
             val intent = Intent(this, EdicionLugarActivity::class.java).apply {
                 putExtra("PREFILL_NOMBRE", lugarCercano.nombre)
                 putExtra("PREFILL_DIRECCION", lugarCercano.direccion)
-                // Pasamos como String para asegurar compatibilidad total en el Intent
                 putExtra("PREFILL_LAT", lugarCercano.geoPunto.latitud.toString())
                 putExtra("PREFILL_LON", lugarCercano.geoPunto.longitud.toString())
                 putExtra("PREFILL_TIPO", mapOsmToTipoLugar(lugarCercano.categoria).ordinal)
@@ -83,8 +169,8 @@ class LugaresCercanosActivity : AppCompatActivity() {
 
     private fun observeViewModel() {
         viewModel.lugaresCercanos.observe(this) { lugares ->
-            adapter.updateLugares(lugares)
-            binding.tvEmpty.visibility = if (lugares.isEmpty()) View.VISIBLE else View.GONE
+            listaCercanosOriginal = lugares
+            aplicarFiltros()
         }
 
         viewModel.isLoading.observe(this) { isLoading ->
@@ -98,27 +184,43 @@ class LugaresCercanosActivity : AppCompatActivity() {
         }
     }
 
-    private fun requestLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 101)
-            return
+    private fun getFimeFallbackLocation(): Location {
+        return Location("fime_uanl").apply {
+            latitude = 25.7256
+            longitude = -100.3152
         }
+    }
 
-        fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
-            location?.let {
-                lastLocation = it
-                adapter.updateUserLocation(it)
-                val radio = when (binding.cgDistancia.checkedChipId) {
-                    R.id.chip1km -> 1000
-                    R.id.chip3km -> 3000
-                    R.id.chip5km -> 5000
-                    else -> 1000
+    private fun requestLocation() {
+        val fimeLoc = com.example.mislugares.LocationHelper.getFimeLocation()
+        lastLocation = fimeLoc
+        adapter.updateUserLocation(fimeLoc)
+        viewModel.buscarLugaresCercanos(fimeLoc, 100000)
+
+        val finePerm = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val coarsePerm = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+
+        if (finePerm || coarsePerm) {
+            fusedLocationClient.lastLocation.addOnSuccessListener { loc: Location? ->
+                val effective = com.example.mislugares.LocationHelper.getEffectiveLocation(loc)
+                if (effective != fimeLoc) {
+                    lastLocation = effective
+                    adapter.updateUserLocation(effective)
+                    viewModel.buscarLugaresCercanos(effective, 100000)
                 }
-                viewModel.buscarLugaresCercanos(it, radio)
-            } ?: run {
-                Toast.makeText(this, R.string.location_error, Toast.LENGTH_SHORT).show()
             }
+        } else {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                102
+            )
         }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        requestLocation()
     }
 
     private fun mapOsmToTipoLugar(category: String): TipoLugar {
@@ -126,17 +228,10 @@ class LugaresCercanosActivity : AppCompatActivity() {
             "restaurant", "fast_food" -> TipoLugar.RESTAURANTE
             "cafe", "bar", "pub" -> TipoLugar.BAR
             "hotel", "hostel", "motel" -> TipoLugar.HOTEL
-            "park", "nature_reserve" -> TipoLugar.NATURALEZA
+            "park", "nature", "nature_reserve" -> TipoLugar.NATURALEZA
             "sports_centre", "gym", "stadium" -> TipoLugar.DEPORTE
             "fuel" -> TipoLugar.GASOLINERA
             else -> TipoLugar.OTROS
-        }
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 101 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            requestLocation()
         }
     }
 }

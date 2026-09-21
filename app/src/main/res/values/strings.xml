@@ -1,9 +1,13 @@
 <resources>
     <string name="app_name">Mis Lugares</string>
     <string name="title_activity_main">Mis Lugares</string>
+    <string name="main_title">Mis Lugares</string>
     <string name="welcome">BIENVENIDO</string>
-    <string name="my_favorites">MIS FAVORITOS</string>
-    <string name="add_places">AÑADIR LUGARES</string>
+    <string name="welcome_subtitle">Selecciona una opción para comenzar:</string>
+    <string name="my_favorites">Mis Favoritos</string>
+    <string name="my_favorites_desc">Explora y filtra tus lugares preferidos en el mapa</string>
+    <string name="add_places">Añadir Lugar</string>
+    <string name="add_places_desc">Registra un nuevo sitio con autocompletado y mapa</string>
     <string name="places_of_interest">SITIOS DE INTERÉS</string>
     <string name="place_details">DETALLES DEL LUGAR</string>
     <string name="add_place">Añadir Lugar</string>
@@ -14,7 +18,7 @@
     <string name="label_url">URL (Web):</string>
     <string name="label_comments">Notas/Comentarios:</string>
     <string name="save_changes">GUARDAR CAMBIOS</string>
-    <string name="view_path">VER CAMINO (Google Maps)</string>
+    <string name="view_path">CÓMO LLEGAR (Google Maps)</string>
     <string name="share_place">Compartir lugar</string>
     <string name="label_type">Tipo:</string>
     <string name="photo">FOTO</string>
@@ -23,16 +27,26 @@
     <string name="about">ACERCA DE</string>
     <string name="exit">SALIR</string>
     <string name="language_selection">Cambiar Idioma</string>
+    <string name="language_selection_desc">Selecciona idioma Español o English</string>
     <string name="select_language">Selecciona un idioma</string>
     <string name="spanish">Español</string>
     <string name="english">Inglés</string>
 
+    <!-- Navigation & Dashboard -->
+    <string name="nav_home">Inicio / Menú Principal</string>
+    <string name="nav_where_am_i">¿Dónde estoy? (Mi Ubicación)</string>
+    <string name="nav_where_am_i_desc">Ver coordenadas GPS actuales y abrir en Maps</string>
+    <string name="nav_filter_category">Filtrar por Categoría</string>
+    <string name="navigation_drawer_open">Abrir menú lateral</string>
+    <string name="navigation_drawer_close">Cerrar menú lateral</string>
+
     <!-- Filters and UI -->
-    <string name="main_title">Mis lugares</string>
     <string name="filter_all">Todos</string>
     <string name="filter_nature">Naturaleza</string>
     <string name="filter_culture">Cultura</string>
     <string name="filter_gastronomy">Gastronomía</string>
+    <string name="filter_food_drinks">Comida / Bares</string>
+    <string name="filter_services">Servicios</string>
 
     <!-- Tipos de lugar -->
     <string name="type_others">Otros</string>
@@ -55,11 +69,49 @@
     <string name="maps_not_found">Google Maps no está instalado</string>
     <string name="search_nearby">BUSCAR CERCANOS</string>
     <string name="nearby_places">Lugares Cercanos</string>
+    <string name="nearby_places_desc">Descubre puntos de interés a tu alrededor con OSM</string>
     <string name="no_nearby_found">No se encontraron lugares cercanos</string>
+    <string name="no_favorites_found">No tienes lugares en tus favoritos aún</string>
     <string name="location_error">No se pudo obtener la ubicación actual</string>
     <string name="unknown_error">Error desconocido al buscar lugares cercanos</string>
     <string name="address_not_available">Dirección no disponible</string>
     <string name="dist_1km">1 km</string>
     <string name="dist_3km">3 km</string>
     <string name="dist_5km">5 km</string>
+    <string name="dist_todos">Todos</string>
+
+    <!-- Toast and dialog strings -->
+    <string name="added_to_favorites">Añadido a favoritos</string>
+    <string name="removed_from_favorites">Quitado de favoritos</string>
+    <string name="already_in_favorites">Ya está en tus favoritos</string>
+    <string name="saved_to_favorites">guardado en Mis Favoritos</string>
+    <string name="current_location_title">Mi Ubicación Actual</string>
+    <string name="getting_location">Obteniendo ubicación GPS actual...</string>
+    <string name="view_in_google_maps">Ver en Google Maps</string>
+    <string name="close">Cerrar</string>
+    <string name="shared_place_received">Lugar compartido cargado</string>
+    <string name="open_in_app">Abrir en la app Mis Lugares</string>
+    <string name="copy_link">Copiar enlace</string>
+    <string name="link_copied">Enlace copiado al portapapeles</string>
+    <string name="share_link_disclaimer">Si el enlace no es tocable, cópialo y pégalo manualmente.</string>
+
+    <!-- Search -->
+    <string name="search_hint">Buscar lugares…</string>
+    <string name="no_search_results">No se encontraron lugares con ese nombre</string>
+
+    <!-- Action buttons -->
+    <string name="action_call">Llamar</string>
+    <string name="action_route">Ruta</string>
+    <string name="action_web">Web</string>
+    <string name="action_share">Compartir</string>
+    <string name="action_directions">Cómo llegar</string>
+    <string name="no_phone_available">Este lugar no tiene teléfono registrado</string>
+    <string name="no_url_available">Este lugar no tiene sitio web registrado</string>
+
+    <!-- Rating -->
+    <string name="label_rating">Valoración:</string>
+
+    <!-- Dashboard counters -->
+    <string name="favorites_count">%d lugares guardados</string>
+    <string name="nearby_count">%d puntos cercanos a FIME</string>
 </resources>

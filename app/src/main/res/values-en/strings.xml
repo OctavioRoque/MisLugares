@@ -1,9 +1,13 @@
 <resources>
     <string name="app_name">My Places</string>
     <string name="title_activity_main">My Places</string>
+    <string name="main_title">My Places</string>
     <string name="welcome">WELCOME</string>
-    <string name="my_favorites">MY FAVORITES</string>
-    <string name="add_places">ADD PLACES</string>
+    <string name="welcome_subtitle">Select an option to get started:</string>
+    <string name="my_favorites">My Favorites</string>
+    <string name="my_favorites_desc">Explore and filter your favorite places on the map</string>
+    <string name="add_places">Add Place</string>
+    <string name="add_places_desc">Register a new spot with autocomplete and map</string>
     <string name="places_of_interest">PLACES OF INTEREST</string>
     <string name="place_details">PLACE DETAILS</string>
     <string name="add_place">Add Place</string>
@@ -14,7 +18,7 @@
     <string name="label_url">URL (Web):</string>
     <string name="label_comments">Notes/Comments:</string>
     <string name="save_changes">SAVE CHANGES</string>
-    <string name="view_path">VIEW PATH (Google Maps)</string>
+    <string name="view_path">GET DIRECTIONS (Google Maps)</string>
     <string name="share_place">Share place</string>
     <string name="label_type">Type:</string>
     <string name="photo">PHOTO</string>
@@ -23,27 +27,37 @@
     <string name="about">ABOUT</string>
     <string name="exit">EXIT</string>
     <string name="language_selection">Change Language</string>
+    <string name="language_selection_desc">Select language: English or Spanish</string>
     <string name="select_language">Select a language</string>
     <string name="spanish">Spanish</string>
     <string name="english">English</string>
 
+    <!-- Navigation & Dashboard -->
+    <string name="nav_home">Home / Main Menu</string>
+    <string name="nav_where_am_i">Where Am I? (My Location)</string>
+    <string name="nav_where_am_i_desc">View current GPS coordinates and open in Maps</string>
+    <string name="nav_filter_category">Filter by Category</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
     <!-- Filters and UI -->
-    <string name="main_title">My places</string>
     <string name="filter_all">All</string>
     <string name="filter_nature">Nature</string>
     <string name="filter_culture">Culture</string>
-    <string name="filter_gastronomy">Gastronomy</string>
+    <string name="filter_gastronomy">Food &amp; Dining</string>
+    <string name="filter_food_drinks">Food &amp; Drinks</string>
+    <string name="filter_services">Services</string>
 
     <!-- Place types -->
-    <string name="type_others">Others</string>
+    <string name="type_others">Other</string>
     <string name="type_restaurant">Restaurant</string>
     <string name="type_bar">Bar</string>
-    <string name="type_drinks">Drinks</string>
-    <string name="type_show">Show</string>
+    <string name="type_drinks">Nightlife / Drinks</string>
+    <string name="type_show">Entertainment / Show</string>
     <string name="type_hotel">Hotel</string>
     <string name="type_shopping">Shopping</string>
     <string name="type_education">Education</string>
-    <string name="type_sport">Sport</string>
+    <string name="type_sport">Sports</string>
     <string name="type_nature">Nature</string>
     <string name="type_gas_station">Gas Station</string>
     <string name="type_pharmacy">Pharmacy</string>
@@ -55,11 +69,29 @@
     <string name="maps_not_found">Google Maps is not installed</string>
     <string name="search_nearby">SEARCH NEARBY</string>
     <string name="nearby_places">Nearby Places</string>
+    <string name="nearby_places_desc">Discover points of interest around you with OSM</string>
     <string name="no_nearby_found">No nearby places found</string>
+    <string name="no_favorites_found">You do not have any favorite places yet</string>
     <string name="location_error">Could not get current location</string>
     <string name="unknown_error">Unknown error searching nearby places</string>
     <string name="address_not_available">Address not available</string>
     <string name="dist_1km">1 km</string>
     <string name="dist_3km">3 km</string>
     <string name="dist_5km">5 km</string>
+    <string name="dist_todos">All</string>
+
+    <!-- Toast and dialog strings -->
+    <string name="added_to_favorites">Added to favorites</string>
+    <string name="removed_from_favorites">Removed from favorites</string>
+    <string name="already_in_favorites">Already in your favorites</string>
+    <string name="saved_to_favorites">saved to My Favorites</string>
+    <string name="current_location_title">My Current Location</string>
+    <string name="getting_location">Getting current GPS location...</string>
+    <string name="view_in_google_maps">View in Google Maps</string>
+    <string name="close">Close</string>
+    <string name="shared_place_received">Shared place loaded</string>
+    <string name="open_in_app">Open in My Places app</string>
+    <string name="copy_link">Copy link</string>
+    <string name="link_copied">Link copied to clipboard</string>
+    <string name="share_link_disclaimer">If the link is not clickable, copy and paste it manually.</string>
 </resources>
