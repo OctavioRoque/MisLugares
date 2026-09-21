@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mis Lugares — Abriendo lugar compartido…</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #171a21;
+    --text: #eef1f5;
+    --muted: #9aa3af;
+    --accent: #4f8cff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 28px 24px;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+  }
+  .spinner {
+    width: 36px; height: 36px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    border: 3px solid #2a2f3a;
+    border-top-color: var(--accent);
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  h1 { font-size: 18px; margin: 0 0 6px; }
+  p { color: var(--muted); font-size: 14px; margin: 0 0 20px; line-height: 1.4; }
+  .lugar-nombre { color: var(--text); font-weight: 600; }
+  .btn {
+    display: inline-block;
+    width: 100%;
+    padding: 13px 16px;
+    border-radius: 10px;
+    background: var(--accent);
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 10px;
+  }
+  .btn.secondary {
+    background: transparent;
+    border: 1px solid #2a2f3a;
+    color: var(--text);
+  }
+  .detalle {
+    text-align: left;
+    background: #11141a;
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--muted);
+    display: none;
+  }
+  .detalle strong { color: var(--text); }
+  .detalle div { margin-bottom: 6px; }
+  .oculto { display: none; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div id="cargando">
+      <div class="spinner"></div>
+      <h1>Abriendo en Mis Lugares…</h1>
+      <p>Si no pasa nada en unos segundos, toca el botón.</p>
+    </div>
+
+    <div id="sinDatos" class="oculto">
+      <h1>Enlace incompleto</h1>
+      <p>Este enlace no trae información de ningún lugar.</p>
+    </div>
+
+    <div id="acciones" class="oculto">
+      <a id="btnAbrir" class="btn" href="#">Abrir en la app Mis Lugares</a>
+      <div id="detalle" class="detalle"></div>
+      <a id="btnMaps" class="btn secondary oculto" href="#" target="_blank" rel="noopener">Ver en Google Maps</a>
+    </div>
+  </div>
+
+<script>
+(function () {
+  function base64UrlDecode(str) {
+    var base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+    while (base64.length % 4) base64 += '=';
+    var decoded = atob(base64);
+    var bytes = new Uint8Array(decoded.length);
+    for (var i = 0; i < decoded.length; i++) bytes[i] = decoded.charCodeAt(i);
+    return new TextDecoder('utf-8').decode(bytes);
+  }
+
+  var params = new URLSearchParams(window.location.search);
+  var data = params.get('data');
+
+  var elCargando = document.getElementById('cargando');
+  var elSinDatos = document.getElementById('sinDatos');
+  var elAcciones = document.getElementById('acciones');
+  var btnAbrir = document.getElementById('btnAbrir');
+  var btnMaps = document.getElementById('btnMaps');
+  var detalle = document.getElementById('detalle');
+
+  if (!data) {
+    elCargando.classList.add('oculto');
+    elSinDatos.classList.remove('oculto');
+    return;
+  }
+
+  var deepLink = 'mislugares://lugar?data=' + encodeURIComponent(data);
+  btnAbrir.href = deepLink;
+
+  var lugar = null;
+  try {
+    lugar = JSON.parse(base64UrlDecode(data));
+  } catch (e) {
+    lugar = null;
+  }
+
+  if (lugar) {
+    var html = '';
+    if (lugar.nombre) html += '<div><strong>' + lugar.nombre + '</strong></div>';
+    if (lugar.direccion) html += '<div>📫 ' + lugar.direccion + '</div>';
+    if (lugar.tel) html += '<div>📞 ' + lugar.tel + '</div>';
+    if (lugar.comentario) html += '<div>' + lugar.comentario + '</div>';
+    if (html) {
+      detalle.innerHTML = html;
+      detalle.style.display = 'block';
+    }
+    if (lugar.lat && lugar.lon) {
+      btnMaps.href = 'https://maps.google.com/?q=' + lugar.lat + ',' + lugar.lon;
+      btnMaps.classList.remove('oculto');
+    }
+  }
+
+  window.location.replace(deepLink);
+
+  setTimeout(function () {
+    elCargando.classList.add('oculto');
+    elAcciones.classList.remove('oculto');
+  }, 1200);
+})();
+</script>
+</body>
+</html>
