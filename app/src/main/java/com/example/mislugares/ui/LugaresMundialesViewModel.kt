@@ -2,6 +2,7 @@ package com.example.mislugares.ui
 
 import android.app.Application
 import android.location.Location
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -9,6 +10,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.mislugares.data.LugarCercano
 import com.example.mislugares.data.LugaresMundialesRepository
 import com.example.mislugares.data.NominatimApiService
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -16,7 +19,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 /**
- * ViewModel para gestionar la búsqueda de lugares de interés mundial.
+ * ViewModel para gestionar la búsqueda de lugares de interés mundial utilizando Wikipedia.
  */
 class LugaresMundialesViewModel(application: Application) : AndroidViewModel(application) {
     
@@ -24,8 +27,8 @@ class LugaresMundialesViewModel(application: Application) : AndroidViewModel(app
     
     private val nominatimService: NominatimApiService by lazy {
         val client = OkHttpClient.Builder()
-            .connectTimeout(20, TimeUnit.SECONDS)
-            .readTimeout(20, TimeUnit.SECONDS)
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(15, TimeUnit.SECONDS)
             .addInterceptor { chain ->
                 val request = chain.request().newBuilder()
                     .header("User-Agent", "MisLugaresAndroidApp/1.0")
@@ -42,7 +45,7 @@ class LugaresMundialesViewModel(application: Application) : AndroidViewModel(app
             .create(NominatimApiService::class.java)
     }
 
-    private val _lugares = MutableLiveData<List<LugarCercano>>()
+    private val _lugares = MutableLiveData<List<LugarCercano>>(emptyList())
     val lugares: LiveData<List<LugarCercano>> get() = _lugares
     
     private val _isLoading = MutableLiveData<Boolean>()
@@ -52,52 +55,47 @@ class LugaresMundialesViewModel(application: Application) : AndroidViewModel(app
     val error: LiveData<String?> get() = _error
 
     fun buscarPorRegion(nombreRegion: String) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            _error.value = null
+        viewModelScope.launch(Dispatchers.IO) {
+            _isLoading.postValue(true)
+            _error.postValue(null)
+            _lugares.postValue(emptyList())
             
             try {
-                val response = nominatimService.searchAddress(nombreRegion)
+                // 1. Obtener coordenadas de la ciudad vía Nominatim
+                val response = nominatimService.searchAddress(nombreRegion, language = "es")
                 if (response.isSuccessful && !response.body().isNullOrEmpty()) {
                     val result = response.body()!![0]
                     val lat = result.lat?.toDoubleOrNull()
                     val lon = result.lon?.toDoubleOrNull()
                     
                     if (lat != null && lon != null) {
-                        val placesResult = repository.buscarInteresMundial(lat, lon, 3000) // 3km es ideal para velocidad y relevancia
-                        placesResult.onSuccess {
-                            _lugares.value = it
-                        }.onFailure {
-                            _error.value = it.message
+                        // 2. Buscar en Wikipedia (mucho más rápido y sin timeouts)
+                        repository.buscarInteresMundialIncremental(lat, lon, 10000).collect { lista ->
+                            _lugares.postValue(lista)
                         }
-                    } else {
-                        _error.value = "No se pudieron obtener coordenadas para esa región"
                     }
                 } else {
-                    _error.value = "No se encontró la región: $nombreRegion"
+                    _error.postValue("No se encontró la ciudad: $nombreRegion")
                 }
             } catch (e: Exception) {
-                _error.value = "Error de red: ${e.message}"
+                Log.e("LugaresMundiales", "Error: ${e.message}")
+                _error.postValue("Error al conectar con los servicios de búsqueda")
             } finally {
-                _isLoading.value = false
+                _isLoading.postValue(false)
             }
         }
     }
 
-    fun buscarLugaresMundiales(location: Location, radio: Int = 5000) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            _error.value = null
-            
-            val result = repository.buscarInteresMundial(location.latitude, location.longitude, radio)
-            
-            result.onSuccess {
-                _lugares.value = it
-            }.onFailure {
-                _error.value = it.message ?: "Error desconocido"
+    fun buscarLugaresMundiales(location: Location, radio: Int = 10000) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _isLoading.postValue(true)
+            _error.postValue(null)
+            _lugares.postValue(emptyList())
+
+            repository.buscarInteresMundialIncremental(location.latitude, location.longitude, radio).collect { lista ->
+                _lugares.postValue(lista)
             }
-            
-            _isLoading.value = false
+            _isLoading.postValue(false)
         }
     }
 }

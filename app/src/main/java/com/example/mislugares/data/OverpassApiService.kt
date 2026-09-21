@@ -38,7 +38,8 @@ interface OverpassApiService {
 
     companion object {
         const val BASE_URL_PRIMARY = "https://overpass-api.de/api/"
-        const val BASE_URL_FALLBACK = "https://overpass.kumi.systems/api/"
+        const val BASE_URL_SECONDARY = "https://overpass.kumi.systems/api/"
+        const val BASE_URL_TERTIARY = "https://overpass.openstreetmap.fr/api/"
 
         /**
          * Construye una query Overpass QL compacta y rápida para buscar POIs en un radio.
