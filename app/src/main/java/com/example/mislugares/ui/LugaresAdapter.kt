@@ -3,6 +3,7 @@ package com.example.mislugares.ui
 import android.content.Intent
 import android.location.Location
 import android.net.Uri
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +15,7 @@ import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mislugares.Lugar
 import com.example.mislugares.R
+import org.json.JSONObject
 import java.util.Locale
 
 /**
@@ -156,13 +158,31 @@ class LugaresAdapter(
 
         // Botón de Compartir
         holder.btnShare.setOnClickListener {
+            val json = JSONObject().apply {
+                put("nombre", lugar.nombre ?: "")
+                if (!lugar.direccion.isNullOrBlank()) put("direccion", lugar.direccion)
+                if (lugar.latitud != 0.0 || lugar.longitud != 0.0) {
+                    put("lat", lugar.latitud)
+                    put("lon", lugar.longitud)
+                }
+                put("tipo", lugar.tipo?.ordinal ?: 0)
+                if (lugar.telefono != 0) put("tel", lugar.telefono.toString())
+                if (!lugar.url.isNullOrBlank()) put("url", lugar.url)
+                if (!lugar.comentario.isNullOrBlank()) put("comentario", lugar.comentario)
+            }
+
+            val encoded = Base64.encodeToString(json.toString().toByteArray(), Base64.URL_SAFE or Base64.NO_WRAP)
+            val bridgeUrl = "https://octavioroque.github.io/MisLugares/?data=$encoded"
+
             val mensaje = buildString {
-                append(lugar.nombre)
+                append(lugar.nombre ?: "")
                 if (!lugar.direccion.isNullOrBlank()) append("\nDirección: ${lugar.direccion}")
                 if (lugar.telefono != 0) append("\nTel: ${lugar.telefono}")
                 if (lugar.latitud != 0.0 || lugar.longitud != 0.0) {
                     append("\nGoogle Maps: https://maps.google.com/?q=${lugar.latitud},${lugar.longitud}")
                 }
+                append("\n\n${context.getString(R.string.open_in_app)}:\n$bridgeUrl")
+                append("\n\n${context.getString(R.string.share_link_disclaimer)}")
             }
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"

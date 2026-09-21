@@ -91,6 +91,9 @@
     <string name="close">Cerrar</string>
     <string name="shared_place_received">Lugar compartido cargado</string>
     <string name="open_in_app">Abrir en la app Mis Lugares</string>
+    <string name="copy_link">Copiar enlace</string>
+    <string name="link_copied">Enlace copiado al portapapeles</string>
+    <string name="share_link_disclaimer">Si el enlace no es tocable, cópialo y pégalo manualmente.</string>
 
     <!-- Search -->
     <string name="search_hint">Buscar lugares…</string>

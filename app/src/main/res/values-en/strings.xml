@@ -91,4 +91,7 @@
     <string name="close">Close</string>
     <string name="shared_place_received">Shared place loaded</string>
     <string name="open_in_app">Open in My Places app</string>
+    <string name="copy_link">Copy link</string>
+    <string name="link_copied">Link copied to clipboard</string>
+    <string name="share_link_disclaimer">If the link is not clickable, copy and paste it manually.</string>
 </resources>
