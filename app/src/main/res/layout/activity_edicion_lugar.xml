@@ -159,13 +159,33 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:layout_marginBottom="24dp"
+                android:layout_marginBottom="16dp"
                 android:background="@drawable/rounded_background_white"
                 android:gravity="top"
                 android:inputType="textMultiLine"
                 android:lines="4"
                 android:padding="12dp"
                 android:textColor="@color/text_primary" />
+
+            <!-- Valoración con estrellas -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_rating"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <RatingBar
+                android:id="@+id/ratingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="24dp"
+                android:numStars="5"
+                android:progressTint="@color/rating_star"
+                android:rating="0"
+                android:stepSize="0.5" />
 
             <!-- Botón Guardar -->
             <com.google.android.material.button.MaterialButton

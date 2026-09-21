@@ -54,7 +54,24 @@ class MainActivity : AppCompatActivity() {
 
         setupMap()
         setupMenuCards()
+        setupCounters()
         requestLocation()
+    }
+
+    /**
+     * 📊 Muestra contadores dinámicos en las tarjetas del dashboard.
+     */
+    private fun setupCounters() {
+        viewModel.lugares.observe(this) { lugares ->
+            val favCount = lugares.count { it.esFavorito() }
+            if (favCount > 0) {
+                binding.tvFavoritosCount.text = String.format(getString(R.string.favorites_count), favCount)
+            } else {
+                binding.tvFavoritosCount.text = getString(R.string.my_favorites_desc)
+            }
+        }
+        // Mostrar conteo fijo de puntos cercanos a FIME (del repositorio local)
+        binding.tvCercanosCount.text = String.format(getString(R.string.nearby_count), 35)
     }
 
     private fun setupMap() {
@@ -95,9 +112,9 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, EdicionLugarActivity::class.java))
         }
 
-        // 4. Botón / Tarjeta: ¿Dónde estoy? -> Centra el mapa en FIME con zoom y abre la info
+        // 4. Botón / Tarjeta: ¿Dónde estoy? -> Centra el mapa en la ubicación actual con zoom y abre la info
         binding.cardDondeEstoy.setOnClickListener {
-            centrarEnFime(true)
+            centrarEnUbicacion(true)
         }
 
         // 5. Botón / Tarjeta: Cambiar Idioma
@@ -106,25 +123,29 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun centrarEnFime(mostrarMensaje: Boolean = false) {
-        val fimePoint = GeoPoint(LAT_FIME, LON_FIME)
-        binding.mainMapView.controller.animateTo(fimePoint)
+    private fun centrarEnUbicacion(mostrarMensaje: Boolean = false) {
+        val geoPoint = GeoPoint(userLocation.latitude, userLocation.longitude)
+        binding.mainMapView.controller.animateTo(geoPoint)
         binding.mainMapView.controller.setZoom(17.5)
 
+        val esFime = LocationHelper.isEmulatorDefaultLocation(userLocation) || 
+                     (Math.abs(userLocation.latitude - LAT_FIME) < 0.001 && Math.abs(userLocation.longitude - LON_FIME) < 0.001)
+
         userMarker?.apply {
-            position = fimePoint
-            title = "📍 Mi Ubicación: FIME - UANL"
-            snippet = "Facultad de Ingeniería Mecánica y Eléctrica"
+            position = geoPoint
+            title = if (esFime) "📍 Mi Ubicación: FIME - UANL" else "📍 Mi Ubicación Actual"
+            snippet = if (esFime) "Facultad de Ingeniería Mecánica y Eléctrica" else String.format(java.util.Locale.getDefault(), "Lat: %.4f, Lon: %.4f", userLocation.latitude, userLocation.longitude)
             showInfoWindow()
         }
         binding.mainMapView.invalidate()
 
         if (mostrarMensaje) {
-            Toast.makeText(
-                this,
-                "📍 Ubicación: FIME - UANL (Cd. Universitaria, San Nicolás)",
-                Toast.LENGTH_SHORT
-            ).show()
+            val mensaje = if (esFime) {
+                "📍 Ubicación: FIME - UANL (Cd. Universitaria, San Nicolás)"
+            } else {
+                String.format(java.util.Locale.getDefault(), "📍 Ubicación actual: %.4f, %.4f", userLocation.latitude, userLocation.longitude)
+            }
+            Toast.makeText(this, mensaje, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -144,7 +165,13 @@ class MainActivity : AppCompatActivity() {
         val finePerm = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
         val coarsePerm = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
-        if (!finePerm && !coarsePerm) {
+        if (finePerm || coarsePerm) {
+            fusedLocationClient.lastLocation.addOnSuccessListener { loc: Location? ->
+                val effective = LocationHelper.getEffectiveLocation(loc)
+                userLocation = effective
+                centrarEnUbicacion(false)
+            }
+        } else {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
@@ -155,7 +182,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        centrarEnFime(false)
+        requestLocation()
     }
 
     override fun onResume() {

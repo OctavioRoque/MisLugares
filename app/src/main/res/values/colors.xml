@@ -14,4 +14,13 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="gray_light">#E0E0E0</color>
+
+    <!-- Action button colors -->
+    <color name="action_call">#4CAF50</color>
+    <color name="action_route">#2196F3</color>
+    <color name="action_web">#FF9800</color>
+    <color name="action_share">#9C27B0</color>
+    <color name="rating_star">#FFB300</color>
+    <color name="search_hint">#9E9E9E</color>
+    <color name="surface_variant">#F0EBE0</color>
 </resources>

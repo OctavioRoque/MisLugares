@@ -91,4 +91,24 @@
     <string name="close">Cerrar</string>
     <string name="shared_place_received">Lugar compartido cargado</string>
     <string name="open_in_app">Abrir en la app Mis Lugares</string>
+
+    <!-- Search -->
+    <string name="search_hint">Buscar lugares…</string>
+    <string name="no_search_results">No se encontraron lugares con ese nombre</string>
+
+    <!-- Action buttons -->
+    <string name="action_call">Llamar</string>
+    <string name="action_route">Ruta</string>
+    <string name="action_web">Web</string>
+    <string name="action_share">Compartir</string>
+    <string name="action_directions">Cómo llegar</string>
+    <string name="no_phone_available">Este lugar no tiene teléfono registrado</string>
+    <string name="no_url_available">Este lugar no tiene sitio web registrado</string>
+
+    <!-- Rating -->
+    <string name="label_rating">Valoración:</string>
+
+    <!-- Dashboard counters -->
+    <string name="favorites_count">%d lugares guardados</string>
+    <string name="nearby_count">%d puntos cercanos a FIME</string>
 </resources>

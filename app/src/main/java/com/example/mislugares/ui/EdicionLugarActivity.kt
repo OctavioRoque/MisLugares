@@ -269,6 +269,7 @@ class EdicionLugarActivity : AppCompatActivity() {
                 binding.url.setText(it.url)
                 binding.comentario.setText(it.comentario)
                 binding.tipo.setSelection(it.tipo.ordinal)
+                binding.ratingBar.rating = it.valoracion
                 currentGPS = GeoPunto(it.longitud, it.latitud)
             }
         }
@@ -379,7 +380,9 @@ class EdicionLugarActivity : AppCompatActivity() {
         } else {
             intent.getBooleanExtra("PREFILL_FAVORITO", false)
         }
-        val nuevoLugar = Lugar(nombre, direccion, posicion.longitud, posicion.latitud, tipo, telefono, url, comentario, 0, esFav)
+        val valoracion = binding.ratingBar.rating
+        val nuevoLugar = Lugar(nombre, direccion, posicion.longitud, posicion.latitud, tipo, telefono, url, comentario, valoracion.toInt(), esFav)
+        nuevoLugar.valoracion = valoracion
 
         if (lugarIndex == -1) {
             viewModel.addLugar(nuevoLugar)

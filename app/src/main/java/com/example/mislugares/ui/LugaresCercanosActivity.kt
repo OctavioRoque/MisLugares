@@ -5,6 +5,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -21,7 +23,8 @@ import com.google.android.gms.location.LocationServices
 
 /**
  * Pantalla para buscar y mostrar lugares de interés cercanos usando Overpass API.
- * Incluye filtros de distancia, filtros por tipo de lugar y guardado directo en Favoritos.
+ * Incluye filtros de distancia, filtros por tipo de lugar, búsqueda en vivo
+ * y guardado directo en Favoritos.
  */
 class LugaresCercanosActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLugaresCercanosBinding
@@ -50,6 +53,7 @@ class LugaresCercanosActivity : AppCompatActivity() {
 
         setupRecyclerView()
         setupFilters()
+        setupSearchBar()
         observeViewModel()
         requestLocation()
     }
@@ -98,6 +102,19 @@ class LugaresCercanosActivity : AppCompatActivity() {
             categoriaSeleccionada = "SERVICIOS"
             aplicarFiltros()
         }
+    }
+
+    /**
+     * 🔍 Configura la barra de búsqueda con filtrado instantáneo por nombre.
+     */
+    private fun setupSearchBar() {
+        binding.etSearchCercanos.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                adapter.filterByText(s?.toString() ?: "")
+            }
+        })
     }
 
     private fun aplicarFiltros() {
@@ -175,10 +192,35 @@ class LugaresCercanosActivity : AppCompatActivity() {
     }
 
     private fun requestLocation() {
-        val fimeLoc = getFimeFallbackLocation()
+        val fimeLoc = com.example.mislugares.LocationHelper.getFimeLocation()
         lastLocation = fimeLoc
         adapter.updateUserLocation(fimeLoc)
         viewModel.buscarLugaresCercanos(fimeLoc, 100000)
+
+        val finePerm = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val coarsePerm = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+
+        if (finePerm || coarsePerm) {
+            fusedLocationClient.lastLocation.addOnSuccessListener { loc: Location? ->
+                val effective = com.example.mislugares.LocationHelper.getEffectiveLocation(loc)
+                if (effective != fimeLoc) {
+                    lastLocation = effective
+                    adapter.updateUserLocation(effective)
+                    viewModel.buscarLugaresCercanos(effective, 100000)
+                }
+            }
+        } else {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                102
+            )
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        requestLocation()
     }
 
     private fun mapOsmToTipoLugar(category: String): TipoLugar {

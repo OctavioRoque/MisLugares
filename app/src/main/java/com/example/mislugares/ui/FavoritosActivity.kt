@@ -5,6 +5,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -23,7 +25,7 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.overlay.Marker
 
 /**
- * Pantalla de Mis Favoritos con Mapa, Filtros y Lista.
+ * Pantalla de Mis Favoritos con Mapa, Filtros, Búsqueda en vivo y Lista.
  */
 class FavoritosActivity : AppCompatActivity() {
     private lateinit var binding: ActivityFavoritosBinding
@@ -49,6 +51,7 @@ class FavoritosActivity : AppCompatActivity() {
 
         setupMap()
         setupFilters()
+        setupSearchBar()
         setupRecyclerView()
         requestLocation()
 
@@ -92,6 +95,19 @@ class FavoritosActivity : AppCompatActivity() {
             categoriaFavorito = "HOTELES"
             actualizarFavoritos()
         }
+    }
+
+    /**
+     * 🔍 Configura la barra de búsqueda con filtrado instantáneo.
+     */
+    private fun setupSearchBar() {
+        binding.etSearchFavoritos.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                adapter.filterByText(s?.toString() ?: "")
+            }
+        })
     }
 
     private fun setupRecyclerView() {
@@ -168,13 +184,30 @@ class FavoritosActivity : AppCompatActivity() {
     }
 
     private fun requestLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        // Fallback inmediato con FIME (0 km)
+        val fimeLoc = com.example.mislugares.LocationHelper.getFimeLocation()
+        adapter.updateUserLocation(fimeLoc)
+
+        val finePerm = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val coarsePerm = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+
+        if (finePerm || coarsePerm) {
             fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
-                location?.let {
-                    adapter.updateUserLocation(it)
-                }
+                val effectiveLocation = com.example.mislugares.LocationHelper.getEffectiveLocation(location)
+                adapter.updateUserLocation(effectiveLocation)
             }
+        } else {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                101
+            )
         }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        requestLocation()
     }
 
     override fun onResume() {
