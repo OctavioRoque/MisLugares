@@ -1,11 +1,13 @@
 package com.example.mislugares.ui
 
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
+import android.view.Gravity
 import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
 import com.example.mislugares.R
@@ -76,6 +78,9 @@ object MapLibreHelper {
             isCompassEnabled = showCompass
             isLogoEnabled = false
             isAttributionEnabled = true
+            val marginPx = (8f * Resources.getSystem().displayMetrics.density).toInt()
+            attributionGravity = Gravity.BOTTOM or Gravity.START
+            setAttributionMargins(marginPx, 0, 0, marginPx)
         }
     }
 
