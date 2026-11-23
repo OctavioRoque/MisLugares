@@ -35,14 +35,6 @@ class LugaresCercanosViewModel(application: Application) : AndroidViewModel(appl
             
             result.onSuccess {
                 _lugaresCercanos.value = it
-                // Enriquecimiento de direcciones en segundo plano
-                viewModelScope.launch {
-                    repository.enriquecerDirecciones(it) { actualizado ->
-                        _lugaresCercanos.value = _lugaresCercanos.value?.map {
-                            if (it.osmId == actualizado.osmId) actualizado else it
-                        }
-                    }
-                }
             }.onFailure {
                 _error.value = it.message ?: getApplication<android.app.Application>().getString(com.example.mislugares.R.string.unknown_error)
             }
@@ -51,3 +43,5 @@ class LugaresCercanosViewModel(application: Application) : AndroidViewModel(appl
         }
     }
 }
+
+

@@ -147,10 +147,29 @@
                         app:strokeColor="@color/outline"
                         android:layout_marginBottom="16dp">
                         
-                        <org.osmdroid.views.MapView
-                            android:id="@+id/mapPreview"
+                        <com.example.mislugares.ui.TouchableMapContainer
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent" />
+                            android:layout_height="match_parent">
+
+                            <org.maplibre.android.maps.MapView
+                                android:id="@+id/mapPreview"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                app:maplibre_renderTextureMode="true" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="top|start"
+                                android:layout_margin="8dp"
+                                android:background="@drawable/bg_map_pill"
+                                android:elevation="2dp"
+                                android:paddingHorizontal="10dp"
+                                android:paddingVertical="4dp"
+                                android:text="@string/tap_map_to_move_pin"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="11sp" />
+                        </com.example.mislugares.ui.TouchableMapContainer>
                     </com.google.android.material.card.MaterialCardView>
 
                     <TextView

@@ -14,18 +14,25 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.mislugares.LocationHelper
 import com.example.mislugares.Lugar
 import com.example.mislugares.R
 import com.example.mislugares.TipoLugar
 import com.example.mislugares.databinding.ActivityFavoritosBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.overlay.Marker
+import org.maplibre.android.MapLibre
+import org.maplibre.android.camera.CameraPosition
+import org.maplibre.android.camera.CameraUpdateFactory
+import org.maplibre.android.geometry.LatLng
+import org.maplibre.android.geometry.LatLngBounds
+import org.maplibre.android.maps.MapLibreMap
+import org.maplibre.android.maps.Style
+import org.maplibre.geojson.Feature
+import org.maplibre.geojson.Point
 
 /**
- * Pantalla de Mis Favoritos con Mapa, Filtros, Búsqueda en vivo y Lista.
+ * Pantalla de Mis Favoritos con Mapa vectorial, Filtros, Búsqueda en vivo y Lista.
  */
 class FavoritosActivity : AppCompatActivity() {
     private lateinit var binding: ActivityFavoritosBinding
@@ -33,12 +40,22 @@ class FavoritosActivity : AppCompatActivity() {
     private lateinit var adapter: LugaresAdapter
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
+    private var mapLibreMap: MapLibreMap? = null
+    private var mapStyle: Style? = null
+
     private var categoriaFavorito: String = "TODOS"
     private var listaFavoritosActual: List<Lugar> = emptyList()
+    private var selectedPinRealIndex: Int = -1
+
+    companion object {
+        private const val FAV_SOURCE_ID = "favoritos-source"
+        private const val FAV_LAYER_ID = "favoritos-layer"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        MapLibre.getInstance(this)
         binding = ActivityFavoritosBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -49,6 +66,7 @@ class FavoritosActivity : AppCompatActivity() {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
+        binding.mapView.onCreate(savedInstanceState)
         setupMap()
         setupFilters()
         setupSearchBar()
@@ -61,17 +79,82 @@ class FavoritosActivity : AppCompatActivity() {
             }
             startActivity(intent)
         }
+
+        binding.tvSelectedPin.setOnClickListener {
+            if (selectedPinRealIndex != -1) {
+                val intent = Intent(this, EdicionLugarActivity::class.java).apply {
+                    putExtra("LUGAR_INDEX", selectedPinRealIndex)
+                }
+                startActivity(intent)
+            }
+        }
     }
 
     private fun setupMap() {
-        binding.mapView.setTileSource(TileSourceFactory.MAPNIK)
-        binding.mapView.setMultiTouchControls(true)
-        val mapController = binding.mapView.controller
-        mapController.setZoom(15.0)
+        binding.mapView.getMapAsync { map ->
+            mapLibreMap = map
+            MapLibreHelper.configureUiSettings(
+                map = map,
+                showCompass = true,
+                enableTilt = true,
+                enableRotate = true
+            )
+            // Punto inicial por defecto (Centro de Monterrey)
+            map.moveCamera(
+                CameraUpdateFactory.newCameraPosition(
+                    CameraPosition.Builder()
+                        .target(LatLng(25.670815, -100.309239))
+                        .zoom(12.0)
+                        .tilt(0.0)
+                        .build()
+                )
+            )
 
-        // Punto inicial por defecto
-        val startPoint = GeoPoint(25.6866, -100.3161)
-        mapController.setCenter(startPoint)
+            map.addOnMapClickListener { latLng ->
+                manejarToquePin(map, latLng)
+            }
+
+            map.setStyle(Style.Builder().fromUri(MapLibreHelper.MapStyleOption.LIBERTY.url)) { style ->
+                mapStyle = style
+                MapLibreHelper.registerPinImages(this, style)
+                actualizarMarcadoresMapa(listaFavoritosActual, animar = false)
+            }
+        }
+    }
+
+    private fun manejarToquePin(map: MapLibreMap, latLng: LatLng): Boolean {
+        val style = mapStyle
+        if (style == null || !style.isFullyLoaded) return false
+
+        val screenPoint = map.projection.toScreenLocation(latLng)
+        val feature = map.queryRenderedFeatures(screenPoint, FAV_LAYER_ID).firstOrNull()
+        if (feature != null) {
+            val title = feature.getStringProperty("title") ?: ""
+            val realIndex = feature.getNumberProperty("realIndex")?.toInt() ?: -1
+            val geometry = feature.geometry() as? Point
+
+            selectedPinRealIndex = realIndex
+            binding.tvSelectedPin.text = "$title  ›"
+            binding.tvSelectedPin.visibility = View.VISIBLE
+
+            if (geometry != null) {
+                map.easeCamera(
+                    CameraUpdateFactory.newCameraPosition(
+                        CameraPosition.Builder()
+                            .target(LatLng(geometry.latitude(), geometry.longitude()))
+                            .zoom(16.0)
+                            .tilt(0.0)
+                            .build()
+                    ),
+                    650
+                )
+            }
+            return true
+        } else {
+            selectedPinRealIndex = -1
+            binding.tvSelectedPin.visibility = View.GONE
+            return false
+        }
     }
 
     private fun setupFilters() {
@@ -119,14 +202,16 @@ class FavoritosActivity : AppCompatActivity() {
                 Toast.makeText(this, getString(R.string.removed_from_favorites), Toast.LENGTH_SHORT).show()
             }
         ) { positionInList ->
-            val lugarSeleccionado = listaFavoritosActual.getOrNull(positionInList)
+            val lugarSeleccionado = adapter.getLugarAt(positionInList)
             if (lugarSeleccionado != null) {
                 val todos = viewModel.lugares.value ?: emptyList()
                 val realIndex = todos.indexOf(lugarSeleccionado)
-                val intent = Intent(this, EdicionLugarActivity::class.java).apply {
-                    putExtra("LUGAR_INDEX", realIndex)
+                if (realIndex != -1) {
+                    val intent = Intent(this, EdicionLugarActivity::class.java).apply {
+                        putExtra("LUGAR_INDEX", realIndex)
+                    }
+                    startActivity(intent)
                 }
-                startActivity(intent)
             }
         }
         binding.rvFavoritos.layoutManager = LinearLayoutManager(this)
@@ -156,36 +241,83 @@ class FavoritosActivity : AppCompatActivity() {
 
         listaFavoritosActual = filtrados
         adapter.updateLugares(filtrados)
+        binding.tvSelectedPin.visibility = View.GONE
+        selectedPinRealIndex = -1
 
         // Estado vacío
         binding.tvEmptyFavoritos.visibility = if (filtrados.isEmpty()) View.VISIBLE else View.GONE
 
         // 3. Actualizar marcadores en el mapa
-        binding.mapView.overlays.clear()
-        filtrados.forEach { lugar ->
-            if (lugar.latitud != 0.0 || lugar.longitud != 0.0) {
-                val marker = Marker(binding.mapView)
-                marker.position = GeoPoint(lugar.latitud, lugar.longitud)
-                marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                marker.title = lugar.nombre
-                marker.snippet = lugar.direccion
-                binding.mapView.overlays.add(marker)
+        actualizarMarcadoresMapa(filtrados, animar = true)
+    }
+
+    private fun actualizarMarcadoresMapa(filtrados: List<Lugar>, animar: Boolean) {
+        val style = mapStyle ?: return
+        if (!style.isFullyLoaded) return
+
+        val todos = viewModel.lugares.value ?: emptyList()
+        val puntosValidos = mutableListOf<LatLng>()
+
+        val features = filtrados.mapNotNull { lugar ->
+            if (lugar.latitud == 0.0 && lugar.longitud == 0.0) return@mapNotNull null
+            puntosValidos.add(LatLng(lugar.latitud, lugar.longitud))
+            val realIndex = todos.indexOf(lugar)
+            Feature.fromGeometry(Point.fromLngLat(lugar.longitud, lugar.latitud)).apply {
+                addStringProperty("icon", MapLibreHelper.pinIconId(lugar.tipo))
+                addStringProperty("title", lugar.nombre ?: "")
+                addNumberProperty("realIndex", realIndex)
             }
         }
-        binding.mapView.invalidate()
 
-        // Si hay favoritos, centrar el mapa en el primero
-        if (filtrados.isNotEmpty()) {
-            val primerLugar = filtrados.first()
-            if (primerLugar.latitud != 0.0 || primerLugar.longitud != 0.0) {
-                binding.mapView.controller.animateTo(GeoPoint(primerLugar.latitud, primerLugar.longitud))
+        MapLibreHelper.setupOrUpdatePlacePins(
+            style = style,
+            sourceId = FAV_SOURCE_ID,
+            layerId = FAV_LAYER_ID,
+            features = features,
+            isDarkStyle = false,
+            showLabels = true
+        )
+
+        val map = mapLibreMap ?: return
+        if (puntosValidos.isEmpty()) return
+
+        if (puntosValidos.size == 1) {
+            val unico = puntosValidos.first()
+            val update = CameraUpdateFactory.newCameraPosition(
+                CameraPosition.Builder()
+                    .target(unico)
+                    .zoom(15.5)
+                    .tilt(0.0)
+                    .build()
+            )
+            if (animar) map.easeCamera(update, 700) else map.moveCamera(update)
+        } else {
+            val minLat = puntosValidos.minOf { it.latitude }
+            val maxLat = puntosValidos.maxOf { it.latitude }
+            val minLon = puntosValidos.minOf { it.longitude }
+            val maxLon = puntosValidos.maxOf { it.longitude }
+
+            if (maxLat - minLat > 0.0005 || maxLon - minLon > 0.0005) {
+                try {
+                    val bounds = LatLngBounds.Builder().includes(puntosValidos).build()
+                    val padPx = (48 * resources.displayMetrics.density).toInt()
+                    val update = CameraUpdateFactory.newLatLngBounds(bounds, padPx)
+                    if (animar) map.easeCamera(update, 750) else map.moveCamera(update)
+                } catch (_: Exception) {
+                    val primero = puntosValidos.first()
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(primero, 13.5))
+                }
+            } else {
+                val primero = puntosValidos.first()
+                val update = CameraUpdateFactory.newLatLngZoom(primero, 15.0)
+                if (animar) map.easeCamera(update, 700) else map.moveCamera(update)
             }
         }
     }
 
     private fun requestLocation() {
         // Fallback inmediato con FIME (0 km)
-        val fimeLoc = com.example.mislugares.LocationHelper.getFimeLocation()
+        val fimeLoc = LocationHelper.getFimeLocation()
         adapter.updateUserLocation(fimeLoc)
 
         val finePerm = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
@@ -193,7 +325,7 @@ class FavoritosActivity : AppCompatActivity() {
 
         if (finePerm || coarsePerm) {
             fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
-                val effectiveLocation = com.example.mislugares.LocationHelper.getEffectiveLocation(location)
+                val effectiveLocation = LocationHelper.getEffectiveLocation(location)
                 adapter.updateUserLocation(effectiveLocation)
             }
         } else {
@@ -207,7 +339,14 @@ class FavoritosActivity : AppCompatActivity() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        requestLocation()
+        if (requestCode == 101 && grantResults.any { it == PackageManager.PERMISSION_GRANTED }) {
+            requestLocation()
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        binding.mapView.onStart()
     }
 
     override fun onResume() {
@@ -219,5 +358,25 @@ class FavoritosActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         binding.mapView.onPause()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        binding.mapView.onStop()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        binding.mapView.onSaveInstanceState(outState)
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        binding.mapView.onLowMemory()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding.mapView.onDestroy()
     }
 }

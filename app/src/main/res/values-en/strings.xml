@@ -22,7 +22,6 @@
     <string name="share_place">Share place</string>
     <string name="label_type">Type:</string>
     <string name="photo">PHOTO</string>
-    <string name="osm_attribution">© OpenStreetMap contributors</string>
     <string name="preferences">LANGUAGE</string>
     <string name="about">ABOUT</string>
     <string name="exit">EXIT</string>
@@ -98,4 +97,13 @@
     <string name="copy_link">Copy link</string>
     <string name="link_copied">Link copied to clipboard</string>
     <string name="share_link_disclaimer">If the link is not clickable, copy and paste it manually.</string>
+
+    <!-- Map styles & interactions -->
+    <string name="choose_map_style">Map style</string>
+    <string name="map_style_liberty">3D Standard</string>
+    <string name="map_style_bright">Bright</string>
+    <string name="map_style_positron">Minimal</string>
+    <string name="map_style_dark">Dark</string>
+    <string name="tap_map_to_move_pin">Tap the map to adjust the pin</string>
+    <string name="view_details">View details</string>
 </resources>

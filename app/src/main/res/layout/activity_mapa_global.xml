@@ -6,12 +6,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
+    android:fitsSystemWindows="true"
     tools:context=".MapaGlobalActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
+        android:background="@color/background"
+        android:fitsSystemWindows="true"
         app:elevation="0dp">
 
         <androidx.appcompat.widget.Toolbar
@@ -20,7 +22,7 @@
             android:layout_height="?attr/actionBarSize"
             app:popupTheme="@style/Theme.MisLugares.PopupOverlay"
             app:title="@string/nav_where_am_i"
-            app:titleTextColor="@color/primary" />
+            app:titleTextColor="@color/text_primary" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <FrameLayout
@@ -28,29 +30,108 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <org.osmdroid.views.MapView
+        <org.maplibre.android.maps.MapView
             android:id="@+id/mapView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <TextView
+        <!-- Selector flotante de estilo de mapa -->
+        <LinearLayout
+            android:id="@+id/btnMapStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|start"
-            android:layout_margin="8dp"
-            android:background="#80FFFFFF"
-            android:padding="2dp"
-            android:text="@string/osm_attribution"
-            android:textColor="@color/black"
-            android:textSize="10sp" />
-            
+            android:layout_gravity="top|end"
+            android:layout_margin="14dp"
+            android:background="@drawable/bg_map_pill"
+            android:clickable="true"
+            android:elevation="4dp"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="8dp">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_layers"
+                app:tint="@color/secondary" />
+
+            <TextView
+                android:id="@+id/tvMapStyleLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/map_style_liberty"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Tarjeta flotante al tocar un pin de lugar guardado -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardSelectedPlace"
+            style="@style/Widget.MisLugares.CardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="84dp"
+            android:layout_marginBottom="28dp"
+            android:visibility="gone"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="6dp"
+            app:strokeColor="@color/outline"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <TextView
+                    android:id="@+id/tvSelectedPlaceTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:fontFamily="sans-serif-medium"
+                    android:maxLines="1"
+                    android:textColor="@color/text_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvSelectedPlaceAddress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnVerDetalleLugar"
+                    style="@style/Widget.MisLugares.Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:minHeight="36dp"
+                    android:paddingHorizontal="16dp"
+                    android:text="@string/view_details"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabMyLocation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_marginEnd="16dp"
-            android:layout_marginBottom="32dp"
+            android:layout_marginBottom="28dp"
             android:src="@drawable/ic_location"
             app:tint="@color/on_primary"
             app:backgroundTint="@color/primary"

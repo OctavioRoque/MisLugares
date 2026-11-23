@@ -12,8 +12,9 @@ import android.location.Location
  * Si corre en un dispositivo real con GPS, usa la ubicación exacta de la persona.
  */
 object LocationHelper {
-    const val LAT_FIME = 25.7256
-    const val LON_FIME = -100.3152
+    // Coordenadas exactas de Edificio 1 FIME - UANL (OpenStreetMap)
+    const val LAT_FIME = 25.725599
+    const val LON_FIME = -100.313428
 
     /**
      * Retorna la ubicación de referencia fija de FIME - UANL.

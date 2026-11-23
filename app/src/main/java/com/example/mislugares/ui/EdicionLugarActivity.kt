@@ -7,26 +7,23 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import org.osmdroid.config.Configuration
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Marker
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Base64
 import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.example.mislugares.GeoPunto
+import com.example.mislugares.LocationHelper
 import com.example.mislugares.Lugar
-import com.example.mislugares.TipoLugar
 import com.example.mislugares.R
+import com.example.mislugares.TipoLugar
 import com.example.mislugares.data.NominatimApiService
 import com.example.mislugares.data.NominatimSearchResult
 import com.example.mislugares.databinding.ActivityEdicionLugarBinding
@@ -38,6 +35,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import org.json.JSONObject
+import org.maplibre.android.MapLibre
+import org.maplibre.android.camera.CameraPosition
+import org.maplibre.android.camera.CameraUpdateFactory
+import org.maplibre.android.geometry.LatLng
+import org.maplibre.android.maps.MapLibreMap
+import org.maplibre.android.maps.Style
+import org.maplibre.geojson.Feature
+import org.maplibre.geojson.Point
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
@@ -52,11 +57,19 @@ class EdicionLugarActivity : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var currentGPS: GeoPunto? = null
 
+    private var mapLibreMap: MapLibreMap? = null
+    private var mapStyle: Style? = null
+
     // Autocompletado de dirección con Nominatim
     private val debounceHandler = Handler(Looper.getMainLooper())
     private var debounceRunnable: Runnable? = null
     private var searchResults: List<NominatimSearchResult> = emptyList()
     private var isSelectingSuggestion = false
+
+    companion object {
+        private const val PREVIEW_SOURCE_ID = "edicion-preview-source"
+        private const val PREVIEW_LAYER_ID = "edicion-preview-layer"
+    }
 
     private val nominatimService: NominatimApiService by lazy {
         val client = OkHttpClient.Builder()
@@ -81,7 +94,7 @@ class EdicionLugarActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        Configuration.getInstance().userAgentValue = "MisLugaresApp/1.0 (com.example.mislugares)"
+        MapLibre.getInstance(this)
         binding = ActivityEdicionLugarBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -92,20 +105,17 @@ class EdicionLugarActivity : AppCompatActivity() {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         lugarIndex = intent.getIntExtra("LUGAR_INDEX", -1)
-        
+
         // Custom title is handled by the TextView in XML
         val titleText = if (lugarIndex == -1) getString(R.string.add_place) else getString(R.string.edit_place)
         binding.toolbar.findViewById<android.widget.TextView>(R.id.toolbar_title).text = titleText
 
-
-        // Configurar mapa preview
-        binding.mapPreview.setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK)
-        binding.mapPreview.setMultiTouchControls(true)
-        binding.mapPreview.controller.setZoom(16.0)
+        binding.mapPreview.onCreate(savedInstanceState)
+        setupMapPreview()
         setupSpinner()
         loadLugarData()
         prefillFromIntent()
-        
+
         // PRIORIDAD ABSOLUTA: Si el intent trae coordenadas o estamos editando, NO activar GPS.
         val tieneCoordenadas = currentGPS != null
         if (lugarIndex == -1 && !tieneCoordenadas) {
@@ -116,7 +126,6 @@ class EdicionLugarActivity : AppCompatActivity() {
         }
 
         binding.btnGuardar.setOnClickListener { saveLugar() }
-        binding.btnVerCamino.setOnClickListener { verCamino() }
 
         // Los botones de acciones adicionales (Ruta, Compartir, Copiar) solo están disponibles para lugares guardados
         val esLugarGuardado = lugarIndex != -1
@@ -140,6 +149,44 @@ class EdicionLugarActivity : AppCompatActivity() {
         }
 
         setupAddressAutocomplete()
+    }
+
+    private fun setupMapPreview() {
+        binding.mapPreview.getMapAsync { map ->
+            mapLibreMap = map
+            MapLibreHelper.configureUiSettings(
+                map = map,
+                showCompass = false,
+                enableTilt = false,
+                enableRotate = false
+            )
+
+            // Permite tocar el mapa para ajustar la ubicación exacta del pin manualmente
+            map.addOnMapClickListener { latLng ->
+                currentGPS = GeoPunto(latLng.longitude, latLng.latitude)
+                updateMapPreview(animate = true)
+                true
+            }
+
+            map.setStyle(Style.Builder().fromUri(MapLibreHelper.MapStyleOption.LIBERTY.url)) { style ->
+                mapStyle = style
+                MapLibreHelper.registerPinImages(this, style)
+                if (currentGPS != null) {
+                    updateMapPreview(animate = false)
+                } else {
+                    // Vista inicial centrada en Monterrey / FIME en lugar del océano (0,0)
+                    map.moveCamera(
+                        CameraUpdateFactory.newCameraPosition(
+                            CameraPosition.Builder()
+                                .target(LatLng(LocationHelper.LAT_FIME, LocationHelper.LON_FIME))
+                                .zoom(16.0)
+                                .tilt(0.0)
+                                .build()
+                        )
+                    )
+                }
+            }
+        }
     }
 
     private fun generarDeepLink(): String {
@@ -216,16 +263,7 @@ class EdicionLugarActivity : AppCompatActivity() {
                 val selected = searchResults[position]
                 isSelectingSuggestion = true
 
-                // Formatear dirección legible desde los componentes
-                val addr = selected.address
-                val formatted = listOfNotNull(
-                    addr?.road,
-                    addr?.house_number,
-                    addr?.neighbourhood ?: addr?.suburb,
-                    addr?.city ?: addr?.town ?: addr?.village
-                ).joinToString(", ")
-
-                direccionView.setText(formatted.ifBlank { selected.display_name ?: "" })
+                direccionView.setText(selected.display_name ?: "")
                 direccionView.setSelection(direccionView.text.length)
 
                 // Actualizar coordenadas GPS del lugar seleccionado
@@ -233,7 +271,7 @@ class EdicionLugarActivity : AppCompatActivity() {
                 val lon = selected.lon?.toDoubleOrNull()
                 if (lat != null && lon != null) {
                     currentGPS = GeoPunto(lon, lat)
-                    updateMapPreview()
+                    updateMapPreview(animate = true)
                     android.util.Log.d("EdicionLugar", "Coordenadas actualizadas desde autocompletado: $lat, $lon")
                 }
 
@@ -278,24 +316,44 @@ class EdicionLugarActivity : AppCompatActivity() {
                         }
                     }
                 }
-                debounceHandler.postDelayed(debounceRunnable!!, 500)
+                debounceHandler.postDelayed(debounceRunnable!!, 300)
             }
         })
     }
 
-
-    private fun updateMapPreview() {
+    private fun updateMapPreview(animate: Boolean = true) {
         val gps = currentGPS ?: return
-        val point = GeoPoint(gps.latitud, gps.longitud)
-        binding.mapPreview.controller.setCenter(point)
-        
-        binding.mapPreview.overlays.clear()
-        val marker = Marker(binding.mapPreview)
-        marker.position = point
-        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-        marker.title = binding.nombre.text.toString().takeIf { it.isNotBlank() } ?: "Ubicación"
-        binding.mapPreview.overlays.add(marker)
-        binding.mapPreview.invalidate()
+        val style = mapStyle
+        val tipoActual = TipoLugar.values().getOrNull(binding.tipo.selectedItemPosition) ?: TipoLugar.OTROS
+        val markerTitle = binding.nombre.text.toString().takeIf { it.isNotBlank() } ?: ""
+
+        if (style != null && style.isFullyLoaded) {
+            val feature = Feature.fromGeometry(Point.fromLngLat(gps.longitud, gps.latitud)).apply {
+                addStringProperty("icon", MapLibreHelper.pinIconId(tipoActual))
+                addStringProperty("title", markerTitle)
+            }
+            MapLibreHelper.setupOrUpdatePlacePins(
+                style = style,
+                sourceId = PREVIEW_SOURCE_ID,
+                layerId = PREVIEW_LAYER_ID,
+                features = listOf(feature),
+                isDarkStyle = false,
+                showLabels = markerTitle.isNotBlank()
+            )
+        }
+
+        val map = mapLibreMap ?: return
+        val position = CameraPosition.Builder()
+            .target(LatLng(gps.latitud, gps.longitud))
+            .zoom(16.5)
+            .tilt(0.0)
+            .build()
+        val update = CameraUpdateFactory.newCameraPosition(position)
+        if (animate) {
+            map.easeCamera(update, 650)
+        } else {
+            map.moveCamera(update)
+        }
     }
 
     private fun setupSpinner() {
@@ -318,6 +376,15 @@ class EdicionLugarActivity : AppCompatActivity() {
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, tiposTraducidos)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.tipo.adapter = adapter
+
+        binding.tipo.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                if (currentGPS != null) {
+                    updateMapPreview(animate = false)
+                }
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
     }
 
     private fun loadLugarData() {
@@ -332,13 +399,12 @@ class EdicionLugarActivity : AppCompatActivity() {
                 binding.tipo.setSelection(it.tipo.ordinal)
                 binding.ratingBar.rating = it.valoracion
                 currentGPS = GeoPunto(it.longitud, it.latitud)
-                updateMapPreview()
+                updateMapPreview(animate = false)
             }
         }
     }
 
     private fun prefillFromIntent() {
-        // Obtenemos los extras del intent de forma segura
         val extras = intent.extras
         if (lugarIndex == -1 && extras != null) {
             if (extras.containsKey("PREFILL_NOMBRE")) {
@@ -347,19 +413,18 @@ class EdicionLugarActivity : AppCompatActivity() {
             if (extras.containsKey("PREFILL_DIRECCION")) {
                 binding.direccion.setText(extras.getString("PREFILL_DIRECCION"))
             }
-            
-            // Leemos como String y convertimos a Double
+
             val latStr = extras.getString("PREFILL_LAT")
             val lonStr = extras.getString("PREFILL_LON")
             val lat = latStr?.toDoubleOrNull() ?: Double.NaN
             val lon = lonStr?.toDoubleOrNull() ?: Double.NaN
-            
+
             if (!lat.isNaN() && !lon.isNaN()) {
                 currentGPS = GeoPunto(lon, lat)
-                    updateMapPreview()
+                updateMapPreview(animate = false)
                 android.util.Log.d("EdicionLugar", "Ubicación pre-rellenada desde OSM: $lat, $lon")
             }
-            
+
             val tipoOrdinal = intent.getIntExtra("PREFILL_TIPO", -1)
             if (tipoOrdinal != -1) {
                 binding.tipo.setSelection(tipoOrdinal)
@@ -393,7 +458,7 @@ class EdicionLugarActivity : AppCompatActivity() {
 
                     if (latUri != null && lonUri != null && (latUri != 0.0 || lonUri != 0.0)) {
                         currentGPS = GeoPunto(lonUri, latUri)
-                        updateMapPreview()
+                        updateMapPreview(animate = false)
                     }
                     if (tipoUri != null && tipoUri in 0 until binding.tipo.adapter.count) {
                         binding.tipo.setSelection(tipoUri)
@@ -406,6 +471,10 @@ class EdicionLugarActivity : AppCompatActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        binding.mapPreview.onStart()
+    }
 
     override fun onResume() {
         super.onResume()
@@ -417,9 +486,25 @@ class EdicionLugarActivity : AppCompatActivity() {
         binding.mapPreview.onPause()
     }
 
+    override fun onStop() {
+        super.onStop()
+        binding.mapPreview.onStop()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        binding.mapPreview.onSaveInstanceState(outState)
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        binding.mapPreview.onLowMemory()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-        binding.mapPreview.onDetach()
+        debounceRunnable?.let { debounceHandler.removeCallbacks(it) }
+        binding.mapPreview.onDestroy()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -431,22 +516,21 @@ class EdicionLugarActivity : AppCompatActivity() {
     }
 
     private fun requestLocation() {
-        // PRIORIDAD: Si ya tenemos una ubicación (de OSM o de un lugar guardado), NO pedir GPS
         val pos = currentGPS
         if (pos != null) {
             android.util.Log.d("EdicionLugar", "Ubicación ya presente: ${pos.latitud}, ${pos.longitud}. Saltando GPS.")
             return
         }
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        val finePerm = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val coarsePerm = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        if (finePerm || coarsePerm) {
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                location?.let {
-                    // Doble verificación por si se asignó algo mientras esperábamos al GPS
-                    if (currentGPS == null) {
-                        currentGPS = GeoPunto(it.longitude, it.latitude)
-                        updateMapPreview()
-                        android.util.Log.d("EdicionLugar", "Ubicación GPS obtenida: ${it.latitude}, ${it.longitude}")
-                    }
+                val effective = LocationHelper.getEffectiveLocation(location)
+                if (currentGPS == null) {
+                    currentGPS = GeoPunto(effective.longitude, effective.latitude)
+                    updateMapPreview(animate = true)
+                    android.util.Log.d("EdicionLugar", "Ubicación GPS obtenida: ${effective.latitude}, ${effective.longitude}")
                 }
             }
         }
@@ -470,7 +554,7 @@ class EdicionLugarActivity : AppCompatActivity() {
         val esFav = if (lugarIndex != -1) {
             viewModel.getLugar(lugarIndex)?.esFavorito() ?: false
         } else {
-            intent.getBooleanExtra("PREFILL_FAVORITO", false)
+            intent.getBooleanExtra("PREFILL_FAVORITO", true)
         }
         val valoracion = binding.ratingBar.rating
         val nuevoLugar = Lugar(nombre, direccion, posicion.longitud, posicion.latitud, tipo, telefono, url, comentario, valoracion.toInt(), esFav)
@@ -489,7 +573,6 @@ class EdicionLugarActivity : AppCompatActivity() {
     private fun verCamino() {
         val pos = currentGPS ?: return
         val nombre = binding.nombre.text.toString()
-        // Usamos el formato q=lat,lon(Nombre) para que marque el punto exacto con etiqueta
         val uri = Uri.parse("geo:${pos.latitud},${pos.longitud}?q=${pos.latitud},${pos.longitud}(${Uri.encode(nombre)})")
         val intent = Intent(Intent.ACTION_VIEW, uri)
         intent.setPackage("com.google.android.apps.maps")

@@ -186,17 +186,14 @@ class LugaresCercanosActivity : AppCompatActivity() {
     }
 
     private fun getFimeFallbackLocation(): Location {
-        return Location("fime_uanl").apply {
-            latitude = 25.7256
-            longitude = -100.3152
-        }
+        return com.example.mislugares.LocationHelper.getFimeLocation()
     }
 
     private fun requestLocation() {
         val fimeLoc = com.example.mislugares.LocationHelper.getFimeLocation()
         lastLocation = fimeLoc
         adapter.updateUserLocation(fimeLoc)
-        viewModel.buscarLugaresCercanos(fimeLoc, 100000)
+        viewModel.buscarLugaresCercanos(fimeLoc, 5000)
 
         val finePerm = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
         val coarsePerm = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
@@ -204,10 +201,12 @@ class LugaresCercanosActivity : AppCompatActivity() {
         if (finePerm || coarsePerm) {
             fusedLocationClient.lastLocation.addOnSuccessListener { loc: Location? ->
                 val effective = com.example.mislugares.LocationHelper.getEffectiveLocation(loc)
-                if (effective != fimeLoc) {
+                val cambioUbicacion = Math.abs(effective.latitude - fimeLoc.latitude) > 0.0005 ||
+                    Math.abs(effective.longitude - fimeLoc.longitude) > 0.0005
+                if (cambioUbicacion) {
                     lastLocation = effective
                     adapter.updateUserLocation(effective)
-                    viewModel.buscarLugaresCercanos(effective, 100000)
+                    viewModel.buscarLugaresCercanos(effective, 5000)
                 }
             }
         } else {
@@ -236,3 +235,4 @@ class LugaresCercanosActivity : AppCompatActivity() {
         }
     }
 }
+

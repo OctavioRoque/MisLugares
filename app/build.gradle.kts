@@ -48,8 +48,8 @@ dependencies {
     implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp.logging)
 
-    // Osmdroid
-    implementation("org.osmdroid:osmdroid-android:6.1.20")
+    // MapLibre Native Android (OpenStreetMap vector maps via OpenFreeMap, sin API key)
+    implementation(libs.maplibre.android)
 
     // Google Play Services Location
     implementation("com.google.android.gms:play-services-location:21.3.0")

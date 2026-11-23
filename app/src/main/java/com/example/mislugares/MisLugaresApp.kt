@@ -1,7 +1,7 @@
 package com.example.mislugares
 
 import android.app.Application
-import org.osmdroid.config.Configuration
+import org.maplibre.android.MapLibre
 
 /**
  * Clase Application para inicializaciones globales.
@@ -9,9 +9,7 @@ import org.osmdroid.config.Configuration
 class MisLugaresApp : Application() {
     override fun onCreate() {
         super.onCreate()
-        
-        // Configuración de osmdroid según la política de OpenStreetMap
-        // El User-Agent debe ser único para evitar el bloqueo 403
-        Configuration.getInstance().userAgentValue = "MisLugaresApp/1.0 (com.example.mislugares)"
+        // Inicializa MapLibre Native para mapas vectoriales OpenStreetMap (OpenFreeMap)
+        MapLibre.getInstance(this)
     }
 }

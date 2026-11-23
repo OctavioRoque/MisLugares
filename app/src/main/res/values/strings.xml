@@ -22,7 +22,6 @@
     <string name="share_place">Compartir lugar</string>
     <string name="label_type">Tipo:</string>
     <string name="photo">FOTO</string>
-    <string name="osm_attribution">© OpenStreetMap contributors</string>
     <string name="preferences">IDIOMA</string>
     <string name="about">ACERCA DE</string>
     <string name="exit">SALIR</string>
@@ -35,7 +34,7 @@
     <!-- Navigation & Dashboard -->
     <string name="nav_home">Inicio / Menú Principal</string>
     <string name="nav_where_am_i">Mapa</string>
-    <string name="nav_where_am_i_desc">Navega libremente por el mapa interactivo de OSM</string>
+    <string name="nav_where_am_i_desc">Explora el mapa vectorial interactivo 3D con OpenStreetMap</string>
     <string name="nav_filter_category">Filtrar por Categoría</string>
     <string name="navigation_drawer_open">Abrir menú lateral</string>
     <string name="navigation_drawer_close">Cerrar menú lateral</string>
@@ -118,4 +117,13 @@
     <!-- Dashboard counters -->
     <string name="favorites_count">%d lugares guardados</string>
     <string name="nearby_count">%d puntos cercanos a FIME</string>
+
+    <!-- Map styles & interactions -->
+    <string name="choose_map_style">Estilo de mapa</string>
+    <string name="map_style_liberty">3D Estándar</string>
+    <string name="map_style_bright">Vibrante</string>
+    <string name="map_style_positron">Minimalista</string>
+    <string name="map_style_dark">Oscuro</string>
+    <string name="tap_map_to_move_pin">Toca el mapa para ajustar el pin</string>
+    <string name="view_details">Ver detalles</string>
 </resources>

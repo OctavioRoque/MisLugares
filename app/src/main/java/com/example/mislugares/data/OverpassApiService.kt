@@ -6,9 +6,6 @@ import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
 
-/**
- * Data Transfer Objects para la respuesta de Overpass API.
- */
 data class OverpassResponse(
     val elements: List<Element>
 )
@@ -27,11 +24,7 @@ data class Element(
     val effectiveLon: Double get() = lon ?: center?.lon ?: 0.0
 }
 
-/**
- * Interfaz Retrofit para interactuar con la API de Overpass (OpenStreetMap).
- */
 interface OverpassApiService {
-
     @FormUrlEncoded
     @POST("interpreter")
     suspend fun getNearbyPlaces(@Field("data") query: String): Response<OverpassResponse>
@@ -40,17 +33,12 @@ interface OverpassApiService {
         const val BASE_URL_PRIMARY = "https://overpass-api.de/api/"
         const val BASE_URL_FALLBACK = "https://overpass.kumi.systems/api/"
 
-        /**
-         * Construye una query Overpass QL compacta y rápida para buscar POIs en un radio.
-         */
         fun buildQuery(lat: Double, lon: Double, radius: Int = 1000): String {
+            // Simplificado sin expresiones regulares (~), mucho más rápido
             return "[out:json][timeout:10];(" +
-                    "node[\"amenity\"~\"restaurant|fast_food|cafe|bar|pub|fuel|bank|pharmacy\"](around:$radius,$lat,$lon);" +
-                    "node[\"leisure\"~\"park|sports_centre\"](around:$radius,$lat,$lon);" +
-                    "node[\"tourism\"~\"museum|attraction|hotel\"](around:$radius,$lat,$lon);" +
-                    "way[\"amenity\"~\"restaurant|fast_food|cafe|bar|pub|fuel|bank|pharmacy\"](around:$radius,$lat,$lon);" +
-                    "way[\"leisure\"~\"park|sports_centre\"](around:$radius,$lat,$lon);" +
-                    "way[\"tourism\"~\"museum|attraction|hotel\"](around:$radius,$lat,$lon);" +
+                    "node[\"amenity\"](around:$radius,$lat,$lon);" +
+                    "node[\"leisure\"](around:$radius,$lat,$lon);" +
+                    "node[\"tourism\"](around:$radius,$lat,$lon);" +
                     ");out center;"
         }
     }

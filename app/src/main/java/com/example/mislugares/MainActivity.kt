@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
-import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -18,12 +17,18 @@ import com.example.mislugares.databinding.ActivityMainBinding
 import com.example.mislugares.ui.EdicionLugarActivity
 import com.example.mislugares.ui.FavoritosActivity
 import com.example.mislugares.ui.LugaresCercanosActivity
+import com.example.mislugares.ui.LugaresMundialesActivity
 import com.example.mislugares.ui.LugaresViewModel
+import com.example.mislugares.ui.MapLibreHelper
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.overlay.Marker
+import org.maplibre.android.MapLibre
+import org.maplibre.android.camera.CameraPosition
+import org.maplibre.android.camera.CameraUpdateFactory
+import org.maplibre.android.geometry.LatLng
+import org.maplibre.android.maps.MapLibreMap
+import org.maplibre.android.maps.Style
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -31,19 +36,22 @@ class MainActivity : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     // Coordenadas fijas de FIME - UANL (Facultad de Ingeniería Mecánica y Eléctrica)
-    private val LAT_FIME = 25.7256
-    private val LON_FIME = -100.3152
+    private val LAT_FIME = LocationHelper.LAT_FIME
+    private val LON_FIME = LocationHelper.LON_FIME
 
-    private var userLocation: Location = Location("fime_uanl").apply {
-        latitude = LAT_FIME
-        longitude = LON_FIME
-        accuracy = 5f
+    private var userLocation: Location = LocationHelper.getFimeLocation()
+    private var mapLibreMap: MapLibreMap? = null
+    private var mapStyle: Style? = null
+
+    companion object {
+        private const val USER_SOURCE_ID = "main-user-source"
+        private const val USER_LAYER_ID = "main-user-layer"
     }
-    private var userMarker: Marker? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        MapLibre.getInstance(this)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -52,6 +60,7 @@ class MainActivity : AppCompatActivity() {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
+        binding.mainMapView.onCreate(savedInstanceState)
         setupMap()
         setupMenuCards()
         setupCounters()
@@ -75,25 +84,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupMap() {
-        binding.mainMapView.setTileSource(TileSourceFactory.MAPNIK)
-        binding.mainMapView.setMultiTouchControls(true)
-        val mapController = binding.mainMapView.controller
-        mapController.setZoom(17.0)
-
-        // Centrado directamente en FIME - UANL
-        val fimePoint = GeoPoint(LAT_FIME, LON_FIME)
-        mapController.setCenter(fimePoint)
-
-        // Marcador visible en FIME
-        userMarker = Marker(binding.mainMapView).apply {
-            position = fimePoint
-            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-            title = "Mi Ubicación: FIME - UANL"
-            snippet = "Facultad de Ingeniería Mecánica y Eléctrica (Cd. Universitaria)"
-            binding.mainMapView.overlays.add(this)
-            showInfoWindow()
+        binding.pillLocationBadge.setOnClickListener {
+            centrarEnUbicacion(mostrarMensaje = true, animar = true)
         }
-        binding.mainMapView.invalidate()
+
+        binding.mainMapView.getMapAsync { map ->
+            mapLibreMap = map
+            MapLibreHelper.configureUiSettings(
+                map = map,
+                showCompass = false,
+                enableTilt = true,
+                enableRotate = true
+            )
+            map.setStyle(Style.Builder().fromUri(MapLibreHelper.MapStyleOption.LIBERTY.url)) { style ->
+                mapStyle = style
+                MapLibreHelper.registerPinImages(this, style)
+                centrarEnUbicacion(mostrarMensaje = false, animar = false)
+            }
+        }
     }
 
     private fun setupMenuCards() {
@@ -107,11 +115,9 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, LugaresCercanosActivity::class.java))
         }
 
-        // Nuevo: Botón / Tarjeta: Lugares Mundiales
+        // Botón / Tarjeta: Lugares Mundiales
         binding.cardMundiales.setOnClickListener {
-            // Se asume que LugaresMundialesActivity se creará a continuación
-            val intent = Intent(this, com.example.mislugares.ui.LugaresMundialesActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, LugaresMundialesActivity::class.java))
         }
 
         // 3. Botón / Tarjeta: Añadir Lugar
@@ -130,27 +136,46 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun centrarEnUbicacion(mostrarMensaje: Boolean = false) {
-        val geoPoint = GeoPoint(userLocation.latitude, userLocation.longitude)
-        binding.mainMapView.controller.animateTo(geoPoint)
-        binding.mainMapView.controller.setZoom(17.5)
+    private fun centrarEnUbicacion(mostrarMensaje: Boolean = false, animar: Boolean = true) {
+        val esFime = LocationHelper.isEmulatorDefaultLocation(userLocation) ||
+            (Math.abs(userLocation.latitude - LAT_FIME) < 0.001 && Math.abs(userLocation.longitude - LON_FIME) < 0.001)
 
-        val esFime = LocationHelper.isEmulatorDefaultLocation(userLocation) || 
-                     (Math.abs(userLocation.latitude - LAT_FIME) < 0.001 && Math.abs(userLocation.longitude - LON_FIME) < 0.001)
+        val badgeLabel = if (esFime) "FIME - UANL" else getString(R.string.current_location_title)
+        binding.tvLocationBadge.text = badgeLabel
 
-        userMarker?.apply {
-            position = geoPoint
-            title = if (esFime) "Mi Ubicación: FIME - UANL" else "Mi Ubicación Actual"
-            snippet = if (esFime) "Facultad de Ingeniería Mecánica y Eléctrica" else String.format(java.util.Locale.getDefault(), "Lat: %.4f, Lon: %.4f", userLocation.latitude, userLocation.longitude)
-            showInfoWindow()
+        val style = mapStyle
+        if (style != null && style.isFullyLoaded) {
+            MapLibreHelper.setupOrUpdateUserLocation(
+                style = style,
+                sourceId = USER_SOURCE_ID,
+                layerId = USER_LAYER_ID,
+                lat = userLocation.latitude,
+                lon = userLocation.longitude,
+                label = badgeLabel,
+                isDarkStyle = false
+            )
         }
-        binding.mainMapView.invalidate()
+
+        val map = mapLibreMap
+        if (map != null) {
+            val position = CameraPosition.Builder()
+                .target(LatLng(userLocation.latitude, userLocation.longitude))
+                .zoom(16.5)
+                .tilt(15.0)
+                .build()
+            val update = CameraUpdateFactory.newCameraPosition(position)
+            if (animar) {
+                map.easeCamera(update, 800)
+            } else {
+                map.moveCamera(update)
+            }
+        }
 
         if (mostrarMensaje) {
             val mensaje = if (esFime) {
                 "Ubicación: FIME - UANL (Cd. Universitaria, San Nicolás)"
             } else {
-                String.format(java.util.Locale.getDefault(), "Ubicación actual: %.4f, %.4f", userLocation.latitude, userLocation.longitude)
+                String.format(Locale.getDefault(), "Ubicación actual: %.4f, %.4f", userLocation.latitude, userLocation.longitude)
             }
             Toast.makeText(this, mensaje, Toast.LENGTH_SHORT).show()
         }
@@ -176,7 +201,7 @@ class MainActivity : AppCompatActivity() {
             fusedLocationClient.lastLocation.addOnSuccessListener { loc: Location? ->
                 val effective = LocationHelper.getEffectiveLocation(loc)
                 userLocation = effective
-                centrarEnUbicacion(false)
+                centrarEnUbicacion(mostrarMensaje = false, animar = true)
             }
         } else {
             ActivityCompat.requestPermissions(
@@ -189,17 +214,44 @@ class MainActivity : AppCompatActivity() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        requestLocation()
+        if (requestCode == 100 && grantResults.any { it == PackageManager.PERMISSION_GRANTED }) {
+            requestLocation()
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        binding.mainMapView.onStart()
     }
 
     override fun onResume() {
         super.onResume()
         binding.mainMapView.onResume()
+        viewModel.cargarLugares()
     }
 
     override fun onPause() {
         super.onPause()
         binding.mainMapView.onPause()
     }
-}
 
+    override fun onStop() {
+        super.onStop()
+        binding.mainMapView.onStop()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        binding.mainMapView.onSaveInstanceState(outState)
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        binding.mainMapView.onLowMemory()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding.mainMapView.onDestroy()
+    }
+}

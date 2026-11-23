@@ -200,6 +200,8 @@ class LugaresAdapter(
 
     override fun getItemCount() = lugares.size
 
+    fun getLugarAt(position: Int): Lugar? = lugares.getOrNull(position)
+
     fun updateLugares(newLugares: List<Lugar>) {
         this.lugaresCompletos = newLugares
         applySearchFilter()

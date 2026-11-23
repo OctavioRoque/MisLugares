@@ -1,13 +1,39 @@
-*.iml
-.gradle
-/local.properties
-/.idea
-.DS_Store
-/build
+# Gradle & Kotlin
+.gradle/
+.kotlin/
+**/build/
+**/bin/
 /captures
 .externalNativeBuild
 .cxx
+
+# Android build artifacts
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+
+# Local config, secrets & signing keys
 local.properties
-.agents
+*.jks
+*.keystore
+google-services.json
+.env
+.env.*
+
+# IDE / Editors
+*.iml
+.idea/
+.vscode/
+
+# Logs, memory dumps & OS files
+*.log
+*.hprof
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local agent tooling
+.agents/
 skills-lock.json
-**/bin/
